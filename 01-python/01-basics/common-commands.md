@@ -29,9 +29,9 @@
 6. 导出依赖 / 排查问题
 
 你可以先把 Python 项目类比成前端里的：
-- [`node`](package.json) ≈ [`python`](knowledge-base-repo/01-python/01-basics/common-commands.md)
-- [`npm install`](package.json) ≈ [`pip install`](knowledge-base-repo/01-python/01-basics/common-commands.md)
-- [`package.json`](package.json) ≈ [`requirements.txt`](yy-auth/requirements.txt)
+- `node` ≈ `python`
+- `npm install` ≈ `pip install`
+- `package.json` ≈ `requirements.txt`
 - 前端本地运行命令 ≈ Python 启动脚本 / 启动服务命令
 
 ---
@@ -51,7 +51,7 @@ python3 --version
 - 确认本机有没有 Python
 - 确认当前用的是哪个版本
 
-在很多公司环境里，[`python`](knowledge-base-repo/01-python/01-basics/common-commands.md) 和 [`python3`](knowledge-base-repo/01-python/01-basics/common-commands.md) 不一定一样。
+在很多公司环境里，`python` 和 `python3` 不一定一样。
 你以后看到命令跑不起来，先别慌，先看版本。
 
 ### 查看 pip 版本
@@ -129,9 +129,9 @@ pip install -r requirements.txt
 ```
 
 这个命令非常常用。
-如果你接手一个 Python 项目，通常先看有没有 [`requirements.txt`](yy-auth/requirements.txt)。
+如果你接手一个 Python 项目，通常先看有没有 `requirements.txt`。
 
-就像前端接项目会先看 [`package.json`](package.json) 一样。
+就像前端接项目会先看 `package.json` 一样。
 
 ---
 
@@ -150,7 +150,7 @@ pip freeze > requirements.txt
 ```
 
 作用：
-- 生成或更新 [`requirements.txt`](yy-auth/requirements.txt)
+- 生成或更新 `requirements.txt`
 
 这个动作相当于前端里把依赖版本记录下来，方便别人安装一致环境。
 
@@ -244,9 +244,9 @@ pip install flake8
 ```
 
 这些工具分别像：
-- [`black`](knowledge-base-repo/01-python/01-basics/common-commands.md) ≈ 前端里的格式化工具
-- [`isort`](knowledge-base-repo/01-python/01-basics/common-commands.md) ≈ import 排序工具
-- [`flake8`](knowledge-base-repo/01-python/01-basics/common-commands.md) ≈ 代码规范检查工具
+- `black` ≈ 前端里的格式化工具
+- `isort` ≈ import 排序工具
+- `flake8` ≈ 代码规范检查工具
 
 ### 运行 black
 ```bash
@@ -378,18 +378,18 @@ pip freeze > requirements.txt
 - 项目依赖变脏
 - 不同项目互相影响
 
-### 坑 2：[`python`](knowledge-base-repo/01-python/01-basics/common-commands.md) 和 [`python3`](knowledge-base-repo/01-python/01-basics/common-commands.md) 混着用
+### 坑 2：`python` 和 `python3` 混着用
 结果：
 - 解释器不一致
 - pip 安装位置和运行环境对不上
 
 ### 坑 3：依赖装了但服务还是报错
 这时先查：
-- [`which python3`](knowledge-base-repo/01-python/01-basics/common-commands.md)
-- [`which pip`](knowledge-base-repo/01-python/01-basics/common-commands.md)
-- [`pip show 包名`](knowledge-base-repo/01-python/01-basics/common-commands.md)
+- `which python3`
+- `which pip`
+- `pip show 包名`
 
-### 坑 4：把 [`requirements.txt`](yy-auth/requirements.txt) 当成可有可无
+### 坑 4：把 `requirements.txt` 当成可有可无
 其实它很关键。
 它就是团队里统一环境的基础之一。
 
@@ -399,13 +399,13 @@ pip freeze > requirements.txt
 
 你是前端开发，所以我建议不是先背一堆 Python 命令，而是按这个顺序：
 
-1. 会看版本：[`python3 --version`](knowledge-base-repo/01-python/01-basics/common-commands.md)
-2. 会建环境：[`python3 -m venv venv`](knowledge-base-repo/01-python/01-basics/common-commands.md)
-3. 会进环境：[`source venv/bin/activate`](knowledge-base-repo/01-python/01-basics/common-commands.md)
-4. 会装依赖：[`pip install -r requirements.txt`](yy-auth/requirements.txt)
-5. 会跑脚本：[`python3 xxx.py`](knowledge-base-repo/01-python/01-basics/common-commands.md)
-6. 会跑服务：[`uvicorn app.main:app --reload`](knowledge-base-repo/01-python/01-basics/common-commands.md)
-7. 会排查环境：[`which python3`](knowledge-base-repo/01-python/01-basics/common-commands.md)
+1. 会看版本：`python3 --version`
+2. 会建环境：`python3 -m venv venv`
+3. 会进环境：`source venv/bin/activate`
+4. 会装依赖：`pip install -r requirements.txt`
+5. 会跑脚本：`python3 xxx.py`
+6. 会跑服务：`uvicorn app.main:app --reload`
+7. 会排查环境：`which python3`
 
 做到这一步，你已经能开始接触真实 Python 项目了。
 
