@@ -29,11 +29,11 @@
   - 术语表、怎么读、是什么意思、为什么会出现
 - [`update-rules.md`](./update-rules.md)
   - 这一主题后续怎么补、怎么整理
-- [`01-basics`](./01-basics)
+- [`01-basics/common-commands.md`](./01-basics/common-commands.md)
   - Python 基础认知与常用命令
-- [`02-web-backend`](./02-web-backend)
+- [`02-web-backend/fastapi-basics.md`](./02-web-backend/fastapi-basics.md)
   - Python Web 后端核心概念
-- [`03-project-practice`](./03-project-practice)
+- [`03-project-practice/yy-auth-overview.md`](./03-project-practice/yy-auth-overview.md)
   - 结合公司真实项目的实战认知
 
 ## 我应该怎么读这一部分
@@ -44,11 +44,11 @@
    - 建立整体方向感
 2. 再看 [`glossary.md`](./glossary.md)
    - 先把常见名词混个脸熟
-3. 再看 [`01-basics`](./01-basics)
+3. 再看 [`01-basics/common-commands.md`](./01-basics/common-commands.md)
    - 解决基础概念和常用命令
-4. 然后看 [`02-web-backend`](./02-web-backend)
+4. 然后看 [`02-web-backend/fastapi-basics.md`](./02-web-backend/fastapi-basics.md)
    - 理解 Python 在后端里是怎么工作的
-5. 再进入 [`03-project-practice`](./03-project-practice)
+5. 再进入 [`03-project-practice/yy-auth-overview.md`](./03-project-practice/yy-auth-overview.md)
    - 结合 [`yy-auth`](../../yy-auth) 这种真实项目理解
 
 ## 这一部分的写作原则
