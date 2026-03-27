@@ -35,8 +35,6 @@
   - Python Web 后端核心概念
 - [`03-project-practice`](./03-project-practice)
   - 结合公司真实项目的实战认知
-- [`04-notes`](./04-notes)
-  - 日常笔记、外部资料、踩坑记录
 
 ## 我应该怎么读这一部分
 
