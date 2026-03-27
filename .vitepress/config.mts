@@ -19,7 +19,7 @@ export default defineConfig({
     siteTitle: '个人知识库',
     nav: [
       { text: '首页', link: '/' },
-      { text: 'Python', link: '/01-python/README' }
+      { text: 'Python', link: '/01-python/' }
     ],
     sidebar: {
       '/01-python/': [

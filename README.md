@@ -12,7 +12,7 @@
 - 有临时笔记区
 - 未来还能迁移到博客
 
-当前第一批主题从 [`Python`](./01-python/README.md) 开始，后续会逐步扩展到：
+当前第一批主题从 [`Python`](./01-python/index.md) 开始，后续会逐步扩展到：
 - 前端开发
 - RC 遥控车
 - 路亚
@@ -32,7 +32,7 @@
 
 - [`README.md`](./README.md)
   - 知识库总入口
-- [`01-python`](./01-python/README.md)
+- [`01-python`](./01-python/index.md)
   - 第一个主题，聚焦 Python 学习、后端认知和公司项目实战
 
 ## 我怎么使用它
