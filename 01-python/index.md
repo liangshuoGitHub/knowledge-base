@@ -28,7 +28,7 @@
 - [`glossary.md`](./glossary.md)
   - 术语表、怎么读、是什么意思、为什么会出现
 - [`update-rules.md`](./update-rules.md)
-  - 这一主题后续怎么补、怎么整理
+  - 从人的视角说明这一主题后续怎么补、怎么整理
 - [`01-basics/common-commands.md`](./01-basics/common-commands.md)
   - Python 基础认知与常用命令
 - [`02-web-backend/fastapi-basics.md`](./02-web-backend/fastapi-basics.md)

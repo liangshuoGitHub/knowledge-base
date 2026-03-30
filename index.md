@@ -64,7 +64,7 @@ features:
 - [`Python 主题总览`](./01-python/index.md)
 - [`Python 学习地图`](./01-python/learning-map.md)
 - [`Python 术语表`](./01-python/glossary.md)
-- [`Python 主题维护规则`](./01-python/update-rules.md)
+- [`Python 主题维护规则`](./01-python/update-rules.md)（面向人阅读的主题维护说明）
 
 ### Practical Backend Entry
 - [`Python 常用命令`](./01-python/01-basics/common-commands.md)
