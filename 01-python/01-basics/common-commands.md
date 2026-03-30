@@ -86,6 +86,67 @@ python3 -m venv venv
 
 很多 Python 项目第一步不是直接装依赖，而是先建虚拟环境。
 
+### 这里最容易混淆的一点
+很多人刚接触 Python 时会以为下面三步每次都要完整执行一遍：
+1. 创建环境
+2. 激活环境
+3. 安装依赖
+
+其实不是。
+
+更准确的节奏是：
+- 创建环境：通常只做一次
+- 激活环境：每次新开终端时常常要做
+- 安装依赖：第一次做，或者依赖文件变更后再做
+
+你可以把它理解成：
+- 创建环境 = 在磁盘上建一个项目专属 Python 空间
+- 激活环境 = 让当前终端开始使用这套空间
+- 安装依赖 = 把项目需要的包装进这套空间
+
+所以它们不是同一个层级的动作。
+
+### 最常见的项目初始化顺序
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+建议你后面尽量使用 `.venv` 作为目录名。
+原因是：
+- 更常见
+- 更像隐藏目录
+- VS Code 和很多工具识别更友好
+
+### 第二次进入项目时通常怎么做
+如果环境目录还在，而且 `requirements.txt` 没变化，通常只需要：
+
+```bash
+source .venv/bin/activate
+```
+
+### 什么情况下要重新安装依赖
+常见场景：
+- 你第一次拉这个项目
+- 你刚重建了虚拟环境
+- 团队更新了 `requirements.txt`
+- 你切换到了另一个还没装依赖的环境
+
+这时再执行：
+
+```bash
+pip install -r requirements.txt
+```
+
+### 什么情况下要重建环境
+比如：
+- 你把 [`.venv`](../01-basics/common-commands.md) 删了
+- Python 版本切换了
+- 环境已经装乱，想彻底重置
+
+这时可以删掉旧环境目录后重新创建。
+
 ---
 
 ## 3. 激活虚拟环境
@@ -95,9 +156,20 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
+如果你用的是 [`.venv`](../01-basics/common-commands.md)，那命令通常会写成：
+
+```bash
+source .venv/bin/activate
+```
+
 激活后，终端前面通常会出现类似：
 ```bash
 (venv)
+```
+
+或者：
+```bash
+(.venv)
 ```
 
 表示你已经进入当前项目的 Python 环境。
@@ -108,6 +180,43 @@ deactivate
 ```
 
 这和前端不太一样，前端一般不会频繁手动“进环境/退环境”，但 Python 很常见。
+
+### 关于环境名称为什么可以自定义
+[`python3 -m venv venv`](../01-basics/common-commands.md) 最后这个 [`venv`](../01-basics/common-commands.md) 本质上只是目录名，不是什么固定的“官方环境名称”。
+
+所以你可以创建：
+- [`venv`](../01-basics/common-commands.md)
+- [`.venv`](../01-basics/common-commands.md)
+- [`py311-env`](../01-basics/common-commands.md)
+- [`.venv-test`](../01-basics/common-commands.md)
+
+但对大多数项目来说，一个 [`.venv`](../01-basics/common-commands.md) 就够了，不需要一上来搞多个环境。
+
+### 怎么查看当前项目下有哪些环境
+原生 [`venv`](../01-basics/common-commands.md) 没有统一的“环境列表”命令，因为它只是一个普通目录。
+
+最实用的方法是找 [`pyvenv.cfg`](../01-basics/common-commands.md)：
+
+```bash
+find . -name pyvenv.cfg
+```
+
+谁目录里有 [`pyvenv.cfg`](../01-basics/common-commands.md)，谁基本就是一个虚拟环境。
+
+### 怎么删除环境
+如果确认某个目录就是虚拟环境，比如 [`.venv`](../01-basics/common-commands.md)，直接删目录即可：
+
+```bash
+rm -rf .venv
+```
+
+如果当前已经激活了环境，先执行下面这条会更稳妥：
+
+```bash
+deactivate
+```
+
+然后再删对应环境目录。
 
 ---
 
