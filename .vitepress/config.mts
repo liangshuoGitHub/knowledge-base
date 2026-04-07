@@ -43,7 +43,9 @@ export default defineConfig({
         {
           text: 'Web 后端',
           items: [
-            { text: 'FastAPI 基础认知', link: '/01-python/02-web-backend/fastapi-basics' }
+            { text: 'FastAPI 基础认知', link: '/01-python/02-web-backend/fastapi-basics' },
+            { text: 'MySQL 基础认知', link: '/01-python/02-web-backend/mysql-basics' },
+            { text: 'Redis 基础认知', link: '/01-python/02-web-backend/redis-basics' }
           ]
         },
         {

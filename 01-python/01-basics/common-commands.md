@@ -67,12 +67,21 @@
 ### 可以直接类比前端
 
 你可以把下面这段 Python：
-- [`def __init__(self, session: Session, request: Request = None):`](../../../yy-auth/app/apis/user/service.py:184)
-- [`self.session = session`](../../../yy-auth/app/apis/user/service.py:185)
-- [`self.login_user = None`](../../../yy-auth/app/apis/user/service.py:186)
+
+```python
+def __init__(self, session: Session, request: Request = None):
+    self.session = session
+    self.login_user = None
+```
 
 脑补成前端 class 里的：
-- `constructor(session, request) { this.session = session; this.loginUser = null }`
+
+```ts
+constructor(session, request) {
+  this.session = session
+  this.loginUser = null
+}
+```
 
 也就是说：
 - [`__init__`](./common-commands.md) ≈ `constructor`
