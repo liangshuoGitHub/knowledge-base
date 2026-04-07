@@ -69,13 +69,19 @@
 
 ### 第二层：它不是孤零零一个服务
 它依赖的东西不少，比如：
-- MySQL
-- Redis
+- [`MySQL`](../04-common-infra/mysql.md)
+- [`Redis`](../04-common-infra/redis.md)
 - Nacos 配置中心
 - 统一鉴权能力
 - 可能还有外部 SSO / OAuth2 服务
 
 这说明它处在公司的整体平台体系里，不是单机小玩具。
+
+这里有一个今天很值得记住的认知：
+- [`MySQL`](../04-common-infra/mysql.md) 更偏长期结构化数据
+- [`Redis`](../04-common-infra/redis.md) 更偏高频临时数据
+
+所以在项目里同时看到它们，不是重复建设，而是分工不同。
 
 ### 第三层：它很适合我用前端视角去反推
 这是我当前最有优势的地方。

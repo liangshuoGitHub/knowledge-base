@@ -69,6 +69,8 @@ features:
 ### Practical Backend Entry
 - [`Python 常用命令`](./01-python/01-basics/common-commands.md)
 - [`FastAPI 基础认知`](./01-python/02-web-backend/fastapi-basics.md)
+- [`MySQL 基础认知`](./01-python/02-web-backend/mysql-basics.md)
+- [`Redis 基础认知`](./01-python/02-web-backend/redis-basics.md)
 
 ### Real Project Practice
 - [`yy-auth 项目整体认知`](./01-python/03-project-practice/yy-auth-overview.md)

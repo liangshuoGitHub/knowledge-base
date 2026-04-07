@@ -152,6 +152,27 @@ flowchart TD
 所以你以后如果看到 views 很短、service 很长，不用奇怪。
 这在后端项目里很常见。
 
+### 今天特别值得补的一层理解
+
+在 service 里你会看到两种很典型的资源使用方式：
+- [`self.session`](../../../../yy-auth/app/apis/user/service.py:185)
+- [`get_redis()`](../../../../yy-auth/app/core/cache.py:36)
+
+这两种写法的差异，当前可以先这样理解：
+- [`self.session`](../../../../yy-auth/app/apis/user/service.py:185) 代表数据库会话已经在对象初始化时注入进来了
+- [`get_redis()`](../../../../yy-auth/app/core/cache.py:36) 代表 Redis 客户端是通过工具函数按需获取
+
+这不是因为 [`MySQL`](../04-common-infra/mysql.md) 和 [`Redis`](../04-common-infra/redis.md) 在技术本质上谁更特殊，而是因为这个项目对它们采用了不同的封装方式。
+
+如果你以后再看到：
+- [`self.session.query(...)`](../../../../yy-auth/app/apis/user/providers/qihoo.py:44)
+- [`rds = get_redis()`](../../../../yy-auth/app/apis/user/service.py:145)
+
+就不要只盯着“这一行在干嘛”，还要顺手问自己：
+- 这个资源是从哪传进来的
+- 它为什么在这里是这种拿法
+- 这种拿法背后反映的是项目结构还是技术本身
+
 ## 第 6 站：返回响应
 
 最后结果通常会包装成统一响应对象返回，比如：
