@@ -9,6 +9,10 @@
 - 让我看到项目里相关代码时不发懵
 - 让我能把它和自己熟悉的前端思维对应起来
 
+如果当前还没有建立“后端是在管理数据、规则、权限和请求链路”的感觉，建议先看 [`backend-thinking.md`](../01-basics/backend-thinking.md)。
+
+这样再回来看 [`FastAPI`](../../../yy-auth/requirements.txt)，会更容易明白它为什么是后端接口世界的组织者。
+
 ## 先说一句人话
 
 [`FastAPI`](../../../yy-auth/requirements.txt) 可以先理解成：

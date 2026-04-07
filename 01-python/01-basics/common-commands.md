@@ -15,6 +15,18 @@
 
 所以这篇就按“能直接拿去用”的方式整理。
 
+这篇的定位主要是：
+- 常用命令
+- 环境管理
+- 项目启动
+- 少量和项目阅读强相关的语法切片
+
+如果你当前想系统补“后端思维”和“最小语法集合”，建议先看：
+- [`backend-thinking.md`](./backend-thinking.md)
+- [`python-syntax-for-frontend.md`](./python-syntax-for-frontend.md)
+
+也就是说，这篇不是完整语法文档，而是更偏“上手项目前最常用的命令与环境手册”。
+
 ---
 
 ## 先建立一个基本认知
@@ -33,6 +45,73 @@
 - `npm install` ≈ `pip install`
 - `package.json` ≈ `requirements.txt`
 - 前端本地运行命令 ≈ Python 启动脚本 / 启动服务命令
+
+---
+
+## 补一个今天非常关键的基础概念：[`self`](./common-commands.md) 到底是谁
+
+如果你开始看后端项目，很快就会遇到这种代码：
+- [`def __init__(self, session: Session, request: Request = None):`](../../../yy-auth/app/apis/user/service.py:184)
+- [`self.session = session`](../../../yy-auth/app/apis/user/service.py:185)
+- [`self.login_user = None`](../../../yy-auth/app/apis/user/service.py:186)
+
+前端同学最容易卡住的问题通常不是语法，而是：
+- 为什么 [`self`](./common-commands.md) 这么常见
+- 为什么它不是指向 [`__init__`](./common-commands.md)
+- 为什么 [`self.login_user = None`](../../../yy-auth/app/apis/user/service.py:186) 是给对象赋值
+
+### 一句话先记住
+
+**[`self`](./common-commands.md) 指的是当前实例对象自己，不是指向 [`__init__`](./common-commands.md) 这个方法。**
+
+### 可以直接类比前端
+
+你可以把下面这段 Python：
+- [`def __init__(self, session: Session, request: Request = None):`](../../../yy-auth/app/apis/user/service.py:184)
+- [`self.session = session`](../../../yy-auth/app/apis/user/service.py:185)
+- [`self.login_user = None`](../../../yy-auth/app/apis/user/service.py:186)
+
+脑补成前端 class 里的：
+- `constructor(session, request) { this.session = session; this.loginUser = null }`
+
+也就是说：
+- [`__init__`](./common-commands.md) ≈ `constructor`
+- [`self`](./common-commands.md) ≈ `this`
+
+### 为什么它不是 [`__init__`](./common-commands.md)
+
+因为 [`__init__`](./common-commands.md) 只是类里的一个方法，真正被初始化的是“这个类创建出来的实例对象”。
+
+像：
+- [`service = UserService(session)`](../../../yy-auth/app/apis/user/views.py:206)
+
+你可以粗略理解成 Python 背后做了两件事：
+1. 先创建一个 [`UserService`](../../../yy-auth/app/apis/user/service.py:183) 对象
+2. 再调用 [`UserService.__init__()`](../../../yy-auth/app/apis/user/service.py:184) 给这个对象补初始属性
+
+所以：
+- [`self.session = session`](../../../yy-auth/app/apis/user/service.py:185)
+- [`self.login_user = None`](../../../yy-auth/app/apis/user/service.py:186)
+
+本质上都可以脑补成：
+- `service.session = session`
+- `service.login_user = None`
+
+### 看到 [`self.xxx = yyy`](./common-commands.md) 时应该怎么想
+
+以后你在 Python 类里看到：
+- [`self.xxx = yyy`](./common-commands.md)
+
+就先别慌，直接翻译成人话：
+
+**给当前这个对象设置一个属性。**
+
+这个认知一旦有了，后面再看：
+- [`self.session`](../../../yy-auth/app/apis/user/service.py:185)
+- [`self.request`](../../../yy-auth/app/apis/user/service.py:187)
+- [`self.token`](../../../yy-auth/app/apis/user/providers/qihoo.py:16)
+
+就会顺很多。
 
 ---
 

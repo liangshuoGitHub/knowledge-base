@@ -35,6 +35,8 @@ export default defineConfig({
         {
           text: '基础入门',
           items: [
+            { text: '后端思维入门', link: '/01-python/01-basics/backend-thinking' },
+            { text: '前端视角的 Python 最小语法', link: '/01-python/01-basics/python-syntax-for-frontend' },
             { text: 'Python 常用命令', link: '/01-python/01-basics/common-commands' }
           ]
         },

@@ -14,9 +14,11 @@
 ## 当前学习定位
 
 当前学习主线是：
-- 先建立整体地图
-- 再认识高频名词
-- 再理解真实项目
+- 先建立后端视角
+- 再补最小语法集合
+- 再熟悉命令与环境
+- 再理解高频名词和 Web 后端基础
+- 再进入真实项目
 - 再逐步形成小规模实战能力
 
 当前第一站，围绕公司项目 [`yy-auth`](../../yy-auth) 来认识 Python Web 后端。
@@ -29,12 +31,22 @@
   - 术语表、怎么读、是什么意思、为什么会出现
 - [`update-rules.md`](./update-rules.md)
   - 从人的视角说明这一主题后续怎么补、怎么整理
+- [`01-basics/backend-thinking.md`](./01-basics/backend-thinking.md)
+  - 前端转后端时最先该建立的思维方式
+- [`01-basics/python-syntax-for-frontend.md`](./01-basics/python-syntax-for-frontend.md)
+  - 面向项目阅读的最小 Python 语法集合
 - [`01-basics/common-commands.md`](./01-basics/common-commands.md)
-  - Python 基础认知与常用命令
+  - Python 常用命令、环境管理与少量高频语法切片
 - [`02-web-backend/fastapi-basics.md`](./02-web-backend/fastapi-basics.md)
   - Python Web 后端核心概念
+- [`02-web-backend/mysql-basics.md`](./02-web-backend/mysql-basics.md)
+  - MySQL 在 Python 后端里的基础认知与项目内常见用法
+- [`02-web-backend/redis-basics.md`](./02-web-backend/redis-basics.md)
+  - Redis 在 Python 后端里的基础认知与项目内常见用法
 - [`03-project-practice/yy-auth-overview.md`](./03-project-practice/yy-auth-overview.md)
   - 结合公司真实项目的实战认知
+- [`03-project-practice/yy-auth-request-flow.md`](./03-project-practice/yy-auth-request-flow.md)
+  - 用真实请求链路建立项目阅读感觉
 
 ## 我应该怎么读这一部分
 
@@ -44,12 +56,20 @@
    - 建立整体方向感
 2. 再看 [`glossary.md`](./glossary.md)
    - 先把常见名词混个脸熟
-3. 再看 [`01-basics/common-commands.md`](./01-basics/common-commands.md)
-   - 解决基础概念和常用命令
-4. 然后看 [`02-web-backend/fastapi-basics.md`](./02-web-backend/fastapi-basics.md)
-   - 理解 Python 在后端里是怎么工作的
-5. 再进入 [`03-project-practice/yy-auth-overview.md`](./03-project-practice/yy-auth-overview.md)
-   - 结合 [`yy-auth`](../../yy-auth) 这种真实项目理解
+3. 再看 [`01-basics/backend-thinking.md`](./01-basics/backend-thinking.md)
+   - 先把观察系统的角度从前端切到后端
+4. 再看 [`01-basics/python-syntax-for-frontend.md`](./01-basics/python-syntax-for-frontend.md)
+   - 先补够项目阅读用的最小语法集合
+5. 再看 [`01-basics/common-commands.md`](./01-basics/common-commands.md)
+   - 解决环境、依赖、启动和高频命令问题
+6. 然后看 [`02-web-backend/fastapi-basics.md`](./02-web-backend/fastapi-basics.md)
+   - 理解 Python 在后端里是怎么组织接口的
+7. 再看 [`02-web-backend/mysql-basics.md`](./02-web-backend/mysql-basics.md) 和 [`02-web-backend/redis-basics.md`](./02-web-backend/redis-basics.md)
+   - 建立数据与缓存的基础分工认知
+8. 再进入 [`03-project-practice/yy-auth-overview.md`](./03-project-practice/yy-auth-overview.md)
+   - 结合 [`yy-auth`](../../yy-auth) 建立项目整体地图
+9. 最后看 [`03-project-practice/yy-auth-request-flow.md`](./03-project-practice/yy-auth-request-flow.md)
+   - 跟懂一条真实请求链路
 
 ## 这一部分的写作原则
 
