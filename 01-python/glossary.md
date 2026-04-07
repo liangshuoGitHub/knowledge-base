@@ -72,11 +72,53 @@
 
 ---
 
-### [`Redis`](../../yy-auth/requirements.txt)
+### [`MySQL`](./02-web-backend/mysql-basics.md)
+- 常见读法：麦 sequel
+- 它是干什么的：常见的关系型数据库
+- 为什么会出现在这里：像 [`yy-auth`](../../yy-auth) 这种认证与权限服务，需要长期保存用户、角色、权限、组织等结构化数据
+- 当前可以怎么记：**后端长期存业务数据的大仓库**
+- 延伸阅读：[`MySQL 基础认知`](./02-web-backend/mysql-basics.md)
+
+---
+
+### [`Redis`](./02-web-backend/redis-basics.md)
 - 常见读法：瑞迪斯
 - 它是干什么的：内存型缓存数据库
 - 为什么会出现在这里：认证服务常常需要缓存验证码、token、登录态或一些高频临时数据
 - 当前可以怎么记：**放高频临时数据的高速缓存仓库**
+- 延伸阅读：[`Redis 基础认知`](./02-web-backend/redis-basics.md)
+
+---
+
+### [`ORM`](./02-web-backend/mysql-basics.md)
+- 常见读法：O R M
+- 它是干什么的：对象关系映射，把数据库表和代码对象对应起来
+- 为什么会出现在这里：后端项目不一定全靠手写 SQL，很多时候会通过模型、查询对象和 [`Session`](./02-web-backend/mysql-basics.md) 来操作数据库
+- 当前可以怎么记：**把表和代码对象接起来的翻译层**
+
+---
+
+### [`Session`](./02-web-backend/mysql-basics.md)
+- 常见读法：赛申
+- 它是干什么的：数据库会话对象，用来承载查询、写入、提交等数据库操作
+- 为什么会出现在这里：在 [`yy-auth`](../../yy-auth) 里，它会先挂到 [`request.state.db`](../../yy-auth/app/dependencies/db.py:6)，再传进 [`UserService.__init__()`](../../yy-auth/app/apis/user/service.py:184)，最后变成 [`self.session`](../../yy-auth/app/apis/user/service.py:185)
+- 当前可以怎么记：**当前这次业务处理中可用的数据库操作入口**
+
+---
+
+### [`Model`](./02-web-backend/mysql-basics.md)
+- 常见读法：摸抖
+- 它是干什么的：ORM 里的模型类，通常对应数据库中的一张表
+- 为什么会出现在这里：像 [`ProviderSSO`](../../yy-auth/app/apis/user/models.py:72) 这种类，本质上就是把表结构映射成 Python 类
+- 当前可以怎么记：**数据库表在代码里的对象外壳**
+
+---
+
+### [`Column`](./02-web-backend/mysql-basics.md)
+- 常见读法：卡拉姆 / 科伦
+- 它是干什么的：ORM 里声明字段的方式
+- 为什么会出现在这里：像 [`name = Column(String(30), unique=True, comment='标识')`](../../yy-auth/app/apis/user/models.py:73) 这种写法，就是在定义表里的一列
+- 当前可以怎么记：**在代码里声明数据库字段的一种写法**
 
 ---
 
@@ -117,6 +159,30 @@
 - 它是干什么的：身份与权限管理
 - 为什么会出现在这里：[`yy-auth`](../../yy-auth) 不只是登录服务，还涉及角色、权限、接口访问控制
 - 当前可以怎么记：**谁能干什么的总管系统**
+
+---
+
+### [`instance`](./01-basics/common-commands.md)
+- 常见读法：因斯坦斯
+- 它是干什么的：类创建出来的具体对象
+- 为什么会出现在这里：理解 [`self`](./01-basics/common-commands.md) 时，最关键的一步就是知道 `self` 指向当前实例对象，而不是指向 [`__init__`](./01-basics/common-commands.md)
+- 当前可以怎么记：**类的一个具体成品对象**
+
+---
+
+### [`__init__`](./01-basics/common-commands.md)
+- 常见读法：双下 init
+- 它是干什么的：Python 类的初始化方法
+- 为什么会出现在这里：像 [`UserService.__init__()`](../../yy-auth/app/apis/user/service.py:184) 这种写法，就是对象创建后用来设置初始属性的地方
+- 当前可以怎么记：**Python 类里的 constructor**
+
+---
+
+### [`self`](./01-basics/common-commands.md)
+- 常见读法：赛尔夫
+- 它是干什么的：类实例方法里的当前对象引用
+- 为什么会出现在这里：像 [`self.login_user = None`](../../yy-auth/app/apis/user/service.py:186) 这种写法，表示给当前实例对象设置属性，而不是给 [`__init__`](./01-basics/common-commands.md) 这个方法设置属性
+- 当前可以怎么记：**Python 里的 this**
 
 ## 后续维护原则
 
