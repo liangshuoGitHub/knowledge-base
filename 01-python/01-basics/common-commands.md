@@ -51,14 +51,17 @@
 ## 补一个今天非常关键的基础概念：[`self`](./common-commands.md) 到底是谁
 
 如果你开始看后端项目，很快就会遇到这种代码：
-- [`def __init__(self, session: Session, request: Request = None):`](../../../yy-auth/app/apis/user/service.py:184)
-- [`self.session = session`](../../../yy-auth/app/apis/user/service.py:185)
-- [`self.login_user = None`](../../../yy-auth/app/apis/user/service.py:186)
+
+```python
+def __init__(self, session: Session, request: Request = None):
+    self.session = session
+    self.login_user = None
+```
 
 前端同学最容易卡住的问题通常不是语法，而是：
 - 为什么 [`self`](./common-commands.md) 这么常见
 - 为什么它不是指向 [`__init__`](./common-commands.md)
-- 为什么 [`self.login_user = None`](../../../yy-auth/app/apis/user/service.py:186) 是给对象赋值
+- 为什么 `self.login_user = None` 是给对象赋值
 
 ### 一句话先记住
 
