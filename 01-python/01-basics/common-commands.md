@@ -48,7 +48,7 @@
 
 ---
 
-## 补一个今天非常关键的基础概念：[`self`](./common-commands.md) 到底是谁
+## 补一个今天非常关键的基础概念：`self` 到底是谁
 
 如果你开始看后端项目，很快就会遇到这种代码：
 
@@ -59,13 +59,13 @@ def __init__(self, session: Session, request: Request = None):
 ```
 
 前端同学最容易卡住的问题通常不是语法，而是：
-- 为什么 [`self`](./common-commands.md) 这么常见
-- 为什么它不是指向 [`__init__`](./common-commands.md)
+- 为什么 `self` 这么常见
+- 为什么它不是指向 `__init__`
 - 为什么 `self.login_user = None` 是给对象赋值
 
 ### 一句话先记住
 
-**[`self`](./common-commands.md) 指的是当前实例对象自己，不是指向 [`__init__`](./common-commands.md) 这个方法。**
+**`self` 指的是当前实例对象自己，不是指向 `__init__` 这个方法。**
 
 ### 可以直接类比前端
 
@@ -87,53 +87,43 @@ constructor(session, request) {
 ```
 
 也就是说：
-- [`__init__`](./common-commands.md) ≈ `constructor`
-- [`self`](./common-commands.md) ≈ `this`
+- `__init__` ≈ `constructor`
+- `self` ≈ `this`
 
-### 为什么它不是 [`__init__`](./common-commands.md)
+### 为什么它不是 `__init__`
 
-因为 [`__init__`](./common-commands.md) 只是类里的一个方法，真正被初始化的是“这个类创建出来的实例对象”。
-
-像：
-- [`service = UserService(session)`](../../../yy-auth/app/apis/user/views.py:206)
-
-你可以粗略理解成 Python 背后做了两件事：
-1. 先创建一个 [`UserService`](../../../yy-auth/app/apis/user/service.py:183) 对象
-2. 再调用 [`UserService.__init__()`](../../../yy-auth/app/apis/user/service.py:184) 给这个对象补初始属性
+因为 `__init__` 只是类里的一个方法，真正被初始化的是“这个类创建出来的实例对象”。
 
 所以：
-- [`self.session = session`](../../../yy-auth/app/apis/user/service.py:185)
-- [`self.login_user = None`](../../../yy-auth/app/apis/user/service.py:186)
+- `self.session = session`
+- `self.login_user = None`
 
 本质上都可以脑补成：
 - `service.session = session`
 - `service.login_user = None`
 
-### 看到 [`self.xxx = yyy`](./common-commands.md) 时应该怎么想
+### 看到 `self.xxx = yyy` 时应该怎么想
 
 以后你在 Python 类里看到：
-- [`self.xxx = yyy`](./common-commands.md)
+
+- `self.xxx = yyy`
 
 就先别慌，直接翻译成人话：
 
 **给当前这个对象设置一个属性。**
-
-这个认知一旦有了，后面再看：
-- [`self.session`](../../../yy-auth/app/apis/user/service.py:185)
-- [`self.request`](../../../yy-auth/app/apis/user/service.py:187)
-- [`self.token`](../../../yy-auth/app/apis/user/providers/qihoo.py:16)
-
-就会顺很多。
 
 ---
 
 ## 1. 查看 Python 和 pip 版本
 
 ### 查看 Python 版本
+
 ```bash
 python --version
 ```
+
 或者：
+
 ```bash
 python3 --version
 ```
@@ -142,14 +132,14 @@ python3 --version
 - 确认本机有没有 Python
 - 确认当前用的是哪个版本
 
-在很多公司环境里，`python` 和 `python3` 不一定一样。
-你以后看到命令跑不起来，先别慌，先看版本。
-
 ### 查看 pip 版本
+
 ```bash
 pip --version
 ```
+
 或者：
+
 ```bash
 pip3 --version
 ```
@@ -162,22 +152,18 @@ pip3 --version
 
 ## 2. 创建虚拟环境
 
-### 创建一个名为 venv 的虚拟环境
+### 创建一个虚拟环境
+
 ```bash
-python3 -m venv venv
+python3 -m venv .venv
 ```
 
 作用：
 - 在当前目录下创建一个独立 Python 环境
 - 避免项目之间依赖互相污染
 
-这一步非常重要。
-你可以把它类比成：
-**给当前项目单独开一个依赖隔离空间。**
-
-很多 Python 项目第一步不是直接装依赖，而是先建虚拟环境。
-
 ### 这里最容易混淆的一点
+
 很多人刚接触 Python 时会以为下面三步每次都要完整执行一遍：
 1. 创建环境
 2. 激活环境
@@ -190,27 +176,16 @@ python3 -m venv venv
 - 激活环境：每次新开终端时常常要做
 - 安装依赖：第一次做，或者依赖文件变更后再做
 
-你可以把它理解成：
-- 创建环境 = 在磁盘上建一个项目专属 Python 空间
-- 激活环境 = 让当前终端开始使用这套空间
-- 安装依赖 = 把项目需要的包装进这套空间
-
-所以它们不是同一个层级的动作。
-
 ### 最常见的项目初始化顺序
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-建议你后面尽量使用 `.venv` 作为目录名。
-原因是：
-- 更常见
-- 更像隐藏目录
-- VS Code 和很多工具识别更友好
-
 ### 第二次进入项目时通常怎么做
+
 如果环境目录还在，而且 `requirements.txt` 没变化，通常只需要：
 
 ```bash
@@ -218,6 +193,7 @@ source .venv/bin/activate
 ```
 
 ### 什么情况下要重新安装依赖
+
 常见场景：
 - 你第一次拉这个项目
 - 你刚重建了虚拟环境
@@ -231,8 +207,9 @@ pip install -r requirements.txt
 ```
 
 ### 什么情况下要重建环境
+
 比如：
-- 你把 [`.venv`](../01-basics/common-commands.md) 删了
+- 你把 `.venv` 删了
 - Python 版本切换了
 - 环境已经装乱，想彻底重置
 
@@ -243,22 +220,13 @@ pip install -r requirements.txt
 ## 3. 激活虚拟环境
 
 ### macOS / Linux
-```bash
-source venv/bin/activate
-```
-
-如果你用的是 [`.venv`](../01-basics/common-commands.md)，那命令通常会写成：
 
 ```bash
 source .venv/bin/activate
 ```
 
 激活后，终端前面通常会出现类似：
-```bash
-(venv)
-```
 
-或者：
 ```bash
 (.venv)
 ```
@@ -266,36 +234,50 @@ source .venv/bin/activate
 表示你已经进入当前项目的 Python 环境。
 
 ### 退出虚拟环境
+
 ```bash
 deactivate
 ```
 
-这和前端不太一样，前端一般不会频繁手动“进环境/退环境”，但 Python 很常见。
+### 一个特别容易混淆的点
 
-### 关于环境名称为什么可以自定义
-[`python3 -m venv venv`](../01-basics/common-commands.md) 最后这个 [`venv`](../01-basics/common-commands.md) 本质上只是目录名，不是什么固定的“官方环境名称”。
+如果你已经激活了环境，然后手动把 `.venv` 目录删了，终端前面依然可能还显示 `(.venv)`。
 
-所以你可以创建：
-- [`venv`](../01-basics/common-commands.md)
-- [`.venv`](../01-basics/common-commands.md)
-- [`py311-env`](../01-basics/common-commands.md)
-- [`.venv-test`](../01-basics/common-commands.md)
+这是因为：
 
-但对大多数项目来说，一个 [`.venv`](../01-basics/common-commands.md) 就够了，不需要一上来搞多个环境。
+- 删除 `.venv` 是删磁盘上的目录
+- `deactivate` 是退出当前 shell 里的激活状态
+
+它们不是同一件事。
+
+所以遇到这种情况，正确理解是：
+
+- 环境目录没了
+- 但当前终端还保留着激活状态的痕迹
+
+这时执行：
+
+```bash
+deactivate
+```
+
+或者直接关闭当前终端重新打开，都可以。
 
 ### 怎么查看当前项目下有哪些环境
-原生 [`venv`](../01-basics/common-commands.md) 没有统一的“环境列表”命令，因为它只是一个普通目录。
 
-最实用的方法是找 [`pyvenv.cfg`](../01-basics/common-commands.md)：
+原生 `venv` 没有统一的“环境列表”命令，因为它只是一个普通目录。
+
+最实用的方法是找 `pyvenv.cfg`：
 
 ```bash
 find . -name pyvenv.cfg
 ```
 
-谁目录里有 [`pyvenv.cfg`](../01-basics/common-commands.md)，谁基本就是一个虚拟环境。
+谁目录里有 `pyvenv.cfg`，谁基本就是一个虚拟环境。
 
 ### 怎么删除环境
-如果确认某个目录就是虚拟环境，比如 [`.venv`](../01-basics/common-commands.md)，直接删目录即可：
+
+如果确认某个目录就是虚拟环境，比如 `.venv`，直接删目录即可：
 
 ```bash
 rm -rf .venv
@@ -314,24 +296,25 @@ deactivate
 ## 4. 安装依赖
 
 ### 安装单个包
+
 ```bash
 pip install requests
 ```
 
 ### 安装指定版本
+
 ```bash
 pip install requests==2.31.0
 ```
 
 ### 安装 requirements.txt 里的依赖
+
 ```bash
 pip install -r requirements.txt
 ```
 
 这个命令非常常用。
 如果你接手一个 Python 项目，通常先看有没有 `requirements.txt`。
-
-就像前端接项目会先看 `package.json` 一样。
 
 ---
 
@@ -341,61 +324,60 @@ pip install -r requirements.txt
 pip freeze
 ```
 
-作用：
-- 列出当前环境安装的所有包及版本
-
 如果要导出到文件：
+
 ```bash
 pip freeze > requirements.txt
 ```
-
-作用：
-- 生成或更新 `requirements.txt`
-
-这个动作相当于前端里把依赖版本记录下来，方便别人安装一致环境。
 
 ---
 
 ## 6. 运行 Python 脚本
 
 ### 直接运行脚本
+
 ```bash
 python3 app.py
 ```
 
 或者：
+
 ```bash
 python main.py
 ```
-
-作用：
-- 执行某个 Python 文件
-
-如果你后面开始写一些：
-- 小工具
-- 数据清洗脚本
-- 定时处理脚本
-- 简单接口服务
-
-这条命令会很常用。
 
 ---
 
 ## 7. 启动 FastAPI 服务
 
-如果项目是 [`FastAPI`](knowledge-base-repo/01-python/02-web-backend/fastapi-basics.md)，一般会看到类似命令：
+如果项目是 FastAPI，一般会看到类似命令：
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
 这里拆开理解：
-- [`uvicorn`](yy-auth/requirements.txt) 是 ASGI 服务启动器
-- [`app.main`](yy-auth/app/main.py) 表示 Python 模块路径
-- [`app`](yy-auth/app/main.py:1) 表示模块中的应用对象
-- [`--reload`](knowledge-base-repo/01-python/01-basics/common-commands.md) 表示开发模式自动重载
+- `uvicorn` 是 ASGI 服务启动器
+- `app.main` 表示 Python 模块路径
+- `app` 表示模块中的应用对象
+- `--reload` 表示开发模式自动重载
 
-这个命令你以后看后端同事发启动方式时，经常会遇到。
+### 一个很实用的排障思路
+
+如果项目本来是通过更复杂的方式启动，比如：
+- Gunicorn
+- Docker 里的默认启动命令
+- 多进程服务管理
+
+但日志太乱、看不清真正错误时，可以尝试直接用更简单的单进程命令启动：
+
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 6969
+```
+
+这样常常能把真正的启动错误直接打印出来。
+
+这个方法在后端排障里非常有用。
 
 ---
 
@@ -405,21 +387,8 @@ uvicorn app.main:app --reload
 python3
 ```
 
-进入后你可以直接写：
-```python
-print("hello")
-1 + 2
-```
-
-作用：
-- 临时测试语法
-- 验证某段逻辑
-- 快速试一个对象或函数
-
-前端里你可能更习惯浏览器控制台；
-Python 里这个交互环境就有点像本地 REPL 控制台。
-
 退出方式：
+
 ```python
 exit()
 ```
@@ -429,36 +398,37 @@ exit()
 ## 9. 安装项目开发常用工具
 
 ### 安装格式化工具
+
 ```bash
 pip install black
 ```
 
 ### 安装导入排序工具
+
 ```bash
 pip install isort
 ```
 
 ### 安装静态检查工具
+
 ```bash
 pip install flake8
 ```
 
-这些工具分别像：
-- `black` ≈ 前端里的格式化工具
-- `isort` ≈ import 排序工具
-- `flake8` ≈ 代码规范检查工具
-
 ### 运行 black
+
 ```bash
 black .
 ```
 
 ### 运行 isort
+
 ```bash
 isort .
 ```
 
 ### 运行 flake8
+
 ```bash
 flake8 .
 ```
@@ -471,11 +441,6 @@ flake8 .
 pip list
 ```
 
-作用：
-- 看当前环境装了哪些包
-
-如果你怀疑某个包没装，可以先跑这个。
-
 ---
 
 ## 11. 查看某个包的信息
@@ -483,13 +448,6 @@ pip list
 ```bash
 pip show fastapi
 ```
-
-作用：
-- 查看包版本
-- 安装位置
-- 依赖信息
-
-比如你在看 [`yy-auth`](yy-auth) 时，想确认某个包是不是当前环境里的，就可以这么查。
 
 ---
 
@@ -499,118 +457,31 @@ pip show fastapi
 pip uninstall requests
 ```
 
-作用：
-- 删除不再需要的依赖
-
-一般执行后会让你确认一次。
-
 ---
 
-## 13. 按模块方式运行代码
+## 13. 如果项目同时提供 Docker，怎么判断先走哪条路
 
-```bash
-python3 -m app.main
-```
+这是这次真实项目里很有价值的经验。
 
-这个命令和直接跑文件相比，区别在于：
-- 它按模块方式执行
-- 更适合包结构明确的项目
+如果一个 Python 项目同时给了：
 
-后面你如果遇到相对导入问题，别人可能会让你试试 [`python -m`](knowledge-base-repo/01-python/01-basics/common-commands.md) 方式运行。
+- `requirements.txt`
+- `Dockerfile`
+- `docker-compose.yml`
 
----
+对于不熟 Python 的人，通常可以优先判断：
 
-## 14. 常见排查命令
+**项目作者是不是更希望你按 Docker 方式运行。**
 
-### 看 Python 路径
-```bash
-which python3
-```
+因为很多时候：
+- 本机 Python 版本不对
+- 某些依赖和当前解释器不兼容
+- 系统库本机不好配
 
-### 看 pip 路径
-```bash
-which pip
-```
-
-作用：
-- 判断你当前到底用的是哪个解释器、哪个 pip
-- 很适合排查“明明装了包却找不到”这种问题
-
-### 查看环境变量
-```bash
-env | grep PYTHON
-```
-
-作用：
-- 看有没有特殊 Python 环境配置影响运行
-
----
-
-## 15. 我建议你最先记住的 8 条
-
-如果现在不想一下记太多，先记住这 8 条最够用：
-
-```bash
-python3 --version
-pip --version
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python3 app.py
-uvicorn app.main:app --reload
-pip freeze > requirements.txt
-```
-
-这 8 条基本已经能覆盖：
-- 建环境
-- 装依赖
-- 跑脚本
-- 跑服务
-- 导出依赖
-
----
-
-## 16. 前端转 Python 时最常见的几个坑
-
-### 坑 1：没进虚拟环境就开始装包
-结果：
-- 包装到全局环境里
-- 项目依赖变脏
-- 不同项目互相影响
-
-### 坑 2：`python` 和 `python3` 混着用
-结果：
-- 解释器不一致
-- pip 安装位置和运行环境对不上
-
-### 坑 3：依赖装了但服务还是报错
-这时先查：
-- `which python3`
-- `which pip`
-- `pip show 包名`
-
-### 坑 4：把 `requirements.txt` 当成可有可无
-其实它很关键。
-它就是团队里统一环境的基础之一。
-
----
-
-## 17. 如果结合你当前岗位，最实用的学习顺序
-
-你是前端开发，所以我建议不是先背一堆 Python 命令，而是按这个顺序：
-
-1. 会看版本：`python3 --version`
-2. 会建环境：`python3 -m venv venv`
-3. 会进环境：`source venv/bin/activate`
-4. 会装依赖：`pip install -r requirements.txt`
-5. 会跑脚本：`python3 xxx.py`
-6. 会跑服务：`uvicorn app.main:app --reload`
-7. 会排查环境：`which python3`
-
-做到这一步，你已经能开始接触真实 Python 项目了。
-
----
+这时如果项目本身已经有容器方案，优先尝试 Docker 往往更省事。
 
 ## 一句话总结
 
-**Python 常用命令不用一口气全背，先把“看版本、建环境、进环境、装依赖、跑脚本、跑服务、查环境”这条主线掌握住，就已经够你开始上手公司里的 Python 项目。**
+这篇最值得先记住的，不是命令本身，而是：
+
+**先分清“环境创建”“环境激活”“依赖安装”“服务启动”“日志排障”分别属于哪一层动作。**

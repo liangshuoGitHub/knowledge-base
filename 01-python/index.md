@@ -21,7 +21,11 @@
 - 再进入真实项目
 - 再逐步形成小规模实战能力
 
-当前第一站，围绕公司项目 [`yy-auth`](../../yy-auth) 来认识 Python Web 后端。
+当前已经不只围绕 `yy-auth`，也开始结合 `zhinao-plan` 这类真实项目理解：
+- Python Web 项目怎么跑起来
+- FastAPI 文档页怎么访问
+- 一个接口大概怎么走到 service 和 model
+- Docker 在后端项目里到底起什么作用
 
 ## 当前目录
 
@@ -47,6 +51,8 @@
   - 结合公司真实项目的实战认知
 - [`03-project-practice/yy-auth-request-flow.md`](./03-project-practice/yy-auth-request-flow.md)
   - 用真实请求链路建立项目阅读感觉
+- [`03-project-practice/zhinao-plan-request-flow.md`](./03-project-practice/zhinao-plan-request-flow.md)
+  - 结合 `zhinao-plan` 理解 views、service、model 与接口链路
 
 ## 我应该怎么读这一部分
 
@@ -67,9 +73,21 @@
 7. 再看 [`02-web-backend/mysql-basics.md`](./02-web-backend/mysql-basics.md) 和 [`02-web-backend/redis-basics.md`](./02-web-backend/redis-basics.md)
    - 建立数据与缓存的基础分工认知
 8. 再进入 [`03-project-practice/yy-auth-overview.md`](./03-project-practice/yy-auth-overview.md)
-   - 结合 [`yy-auth`](../../yy-auth) 建立项目整体地图
-9. 最后看 [`03-project-practice/yy-auth-request-flow.md`](./03-project-practice/yy-auth-request-flow.md)
+   - 结合 `yy-auth` 建立项目整体地图
+9. 再看 [`03-project-practice/yy-auth-request-flow.md`](./03-project-practice/yy-auth-request-flow.md)
    - 跟懂一条真实请求链路
+10. 再看 [`03-project-practice/zhinao-plan-request-flow.md`](./03-project-practice/zhinao-plan-request-flow.md)
+   - 把接口链路、service、model 和真实项目运行体验连起来
+
+## 和 Docker 的关系
+
+虽然 Docker 不属于 Python 语法本身，但对于前端接手 Python 后端项目来说，它往往是“先把项目跑起来”的关键能力。
+
+所以这部分内容已经单独拆到了：
+
+- [`02-docker/index.md`](../02-docker/index.md)
+
+建议把 Python 和 Docker 结合起来理解，而不是完全割裂看。
 
 ## 这一部分的写作原则
 

@@ -2,7 +2,7 @@
 
 ## 这篇是干什么的
 
-这一篇不是为了把 [`FastAPI`](../../../yy-auth/requirements.txt) 讲成官方文档。
+这一篇不是为了把 FastAPI 讲成官方文档。
 
 它的目标更实际：
 - 让我先知道它到底是干啥的
@@ -11,17 +11,17 @@
 
 如果当前还没有建立“后端是在管理数据、规则、权限和请求链路”的感觉，建议先看 [`backend-thinking.md`](../01-basics/backend-thinking.md)。
 
-这样再回来看 [`FastAPI`](../../../yy-auth/requirements.txt)，会更容易明白它为什么是后端接口世界的组织者。
+这样再回来看 FastAPI，会更容易明白它为什么是后端接口世界的组织者。
 
 ## 先说一句人话
 
-[`FastAPI`](../../../yy-auth/requirements.txt) 可以先理解成：
+FastAPI 可以先理解成：
 
 **一个用 Python 写后端接口的框架。**
 
 如果类比前端：
-- 前端用 [`Vue`](../../../ai-app-component-basic/src/main.ts) / [`React`](https://react.dev/) 组织页面
-- 后端用 [`FastAPI`](../../../yy-auth/requirements.txt) 组织接口
+- 前端用 Vue / React 组织页面
+- 后端用 FastAPI 组织接口
 
 它帮你处理的事情包括：
 - 路由怎么写
@@ -30,159 +30,196 @@
 - 返回结果怎么组织
 - 中间件怎么挂
 - 异常怎么处理
+- 文档页怎么自动生成
 
-## 为什么它会出现在 [`yy-auth`](../../../yy-auth)
+## 为什么它重要
 
-因为 [`yy-auth`](../../../yy-auth) 本质就是一个 Web 后端服务。
+因为很多后端项目的第一层阅读入口，就是 FastAPI 这一层。
 
-它要做很多接口，比如：
-- 登录
-- 注销
-- 获取当前用户
-- 权限树
-- 角色管理
+你不需要一开始就把它所有概念都吃透，但至少要知道：
 
-这些接口都需要一个框架来承载，而它用的就是 [`FastAPI`](../../../yy-auth/requirements.txt)。
+- 应用入口一般在哪
+- 路由一般在哪
+- request、Depends、session 这些参数为什么会出现
+- 为什么浏览器能打开 `/docs`
 
-在 [`app/main.py`](../../../yy-auth/app/main.py:21) 能看到：
-- [`class Application(FastAPI)`](../../../yy-auth/app/main.py:21)
-
-这就说明整个应用就是构建在 [`FastAPI`](../../../yy-auth/app/main.py:21) 之上的。
-
-## 我可以怎么类比它
-
-### 类比 1：前端框架里的“应用骨架”
-你可以把 [`FastAPI`](../../../yy-auth/requirements.txt) 理解成后端里的应用骨架。
-
-前端里你会关心：
-- 页面路由怎么组织
-- 组件怎么拆
-- 状态怎么传
-
-后端里则会关心：
-- 接口路由怎么组织
-- 请求参数怎么校验
-- 中间件怎么串
-- 返回结果怎么规范化
-
-### 类比 2：后端接口世界里的总指挥
-如果没有框架，后端就得自己处理很多底层事情。
-用了 [`FastAPI`](../../../yy-auth/requirements.txt) 后，相当于很多规则和基本能力都被它接管了。
-
-## 在项目里它通常长什么样
+## 它在项目里通常长什么样
 
 ### 1. 应用入口
-在 [`yy-auth/app/main.py`](../../../yy-auth/app/main.py) 里：
-- 定义应用对象
-- 注册异常处理
+
+通常会有一个应用入口文件，比如 `app/main.py`。
+
+这一层往往负责：
+- 初始化应用
+- 加载配置
+- 初始化数据库
+- 初始化缓存
 - 注册中间件
 - 注册路由
 
-这是最顶层。
+你可以把它理解成：
+
+**整个后端服务的开机总控台。**
 
 ### 2. 路由定义
-在 [`yy-auth/app/apis/user/views.py`](../../../yy-auth/app/apis/user/views.py) 这种文件里，会出现：
-- [`@router.get(...)`](../../../yy-auth/app/apis/user/views.py:25)
-- [`@router.post(...)`](../../../yy-auth/app/apis/user/views.py:44)
-- [`@router.put(...)`](../../../yy-auth/app/apis/user/views.py:131)
-- [`@router.delete(...)`](../../../yy-auth/app/apis/user/views.py:155)
+
+通常会在 `views.py` 这类文件里看到：
+
+- `@router.get(...)`
+- `@router.post(...)`
+- `@router.put(...)`
+- `@router.delete(...)`
 
 这些就是在定义接口。
 
-### 3. 参数和依赖
-你还会看到：
-- [`Request`](../../../yy-auth/app/apis/user/views.py:5)
-- [`Depends`](../../../yy-auth/app/apis/user/views.py:5)
-- [`Body`](../../../yy-auth/app/apis/user/views.py:5)
+比如：
 
-这些都属于 [`FastAPI`](../../../yy-auth/requirements.txt) 常用能力。
+```python
+@router.get("/aiexpert/list_all_expert")
+def list_all_ai_expert(...):
+    ...
+```
 
-## 它最值得我现在理解的几个点
+可以先理解成：
+
+**某个 URL + 某种请求方法，命中了某个 Python 函数。**
+
+### 3. 参数和依赖注入
+
+FastAPI 很常见的一类写法是：
+
+```python
+request: Request
+session: Session = Depends(get_db)
+```
+
+这里可以先简单理解成：
+
+- `request`：当前这次请求对象
+- `session`：数据库会话
+- `Depends(get_db)`：让框架帮你把数据库会话准备好再塞进来
+
+现阶段不用把依赖注入底层原理吃透，先理解为：
+
+**接口函数需要什么资源，就让框架先帮你准备。**
+
+## FastAPI 和 service 的关系
+
+FastAPI 负责把请求组织到正确的接口函数里。
+
+但一个真实项目里，接口函数本身通常不会把所有业务逻辑都写满。
+
+更常见的做法是：
+
+- 路由层接参数
+- service 层处理业务
+- model 层对应数据库
+
+也就是说，FastAPI 负责的是“接口组织层”，不是所有业务都堆在框架本身里。
+
+## `/docs` 是怎么来的
+
+这是 FastAPI 很值得前端快速建立直觉的一点。
+
+很多基于 FastAPI 的项目，只要服务正常启动，你就可以在浏览器打开：
+
+```text
+http://localhost:端口/docs
+```
+
+看到 Swagger 风格的接口文档页。
+
+这页通常能做这些事：
+
+- 看有哪些接口
+- 看每个接口的参数
+- 看请求方法是 GET/POST/PUT/DELETE
+- 直接在页面里调试接口
+
+所以它对前端联调非常友好。
+
+### 但要注意一个前提
+
+浏览器能打开 `/docs`，前提是：
+
+- 容器或服务真的启动成功了
+- 端口映射正确
+- 应用没有在启动阶段崩掉
+
+也就是说：
+
+**看不到 `/docs`，不一定是 FastAPI 有问题，很多时候是服务根本没起来。**
+
+## FastAPI 在真实项目里最值得先记住的几个点
 
 ### 路由
-比如：
-- [`@router.post('/user/login')`](../../../yy-auth/app/apis/user/views.py:44)
 
-这行就表示定义了一个 POST 登录接口。
+看到：
 
-前端类比：
-这有点像页面路由，但这里不是页面地址，而是接口地址。
+```python
+@router.get("/xxx")
+```
 
-### 依赖注入
-比如：
-- [`session: Session = Depends(get_db)`](../../../yy-auth/app/apis/user/views.py:48)
+先翻译成人话：
 
-这个概念一开始看着有点抽，但可以先粗暴理解成：
-
-**需要什么资源，就让框架帮你准备好塞进来。**
-
-这里要的是数据库 session，所以就通过 [`Depends(get_db)`](../../../yy-auth/app/apis/user/views.py:48) 注入。
+**定义了一个 GET 接口。**
 
 ### 请求对象
-比如：
-- [`request: Request`](../../../yy-auth/app/apis/user/views.py:46)
 
-这个对象里能拿很多请求相关的信息，比如：
-- 请求头
-- host
-- 当前用户上下文
-- URL 信息
+看到：
 
-### 异常处理
-在 [`yy-auth/app/main.py`](../../../yy-auth/app/main.py) 里能看到：
-- [`@app.exception_handler(...)`](../../../yy-auth/app/main.py:56)
+```python
+request: Request
+```
 
-这说明项目把一部分错误处理统一挂到了应用层。
+先翻译成人话：
 
-可以理解成：
-**不是每个接口自己乱报错，而是尽量有统一出口。**
+**当前这次请求相关的信息都在这里。**
 
-### 中间件
-在 [`yy-auth/app/main.py`](../../../yy-auth/app/main.py:41) 往下能看到：
-- JWT 中间件
-- IAM 中间件
-- MySQL 中间件
-- CORS 中间件
+### 数据库依赖
 
-可以先把中间件理解成：
-**请求真正进入接口逻辑前，要先经过的几道关卡。**
+看到：
 
-## 为什么很多人觉得它“高级”
+```python
+session: Session = Depends(get_db)
+```
 
-其实不一定是它难，而是它把很多东西都组织得比较现代：
-- 类型标注
-- 参数校验
-- 自动文档
-- 依赖注入
-- 异步支持
+先翻译成人话：
 
-如果第一次看，很容易觉得词多、符号多、花样多。
+**数据库会话不是手工临时造的，而是通过框架依赖注入拿到的。**
 
-但站在现在这个阶段，不用一下全懂。
+### 统一响应
 
-先记住：
-**它就是后端写接口的主框架。**
+很多项目会在 views 最后返回统一结构，比如：
 
-## 当前最值得记住的一句话
+```python
+return JsonResponse(data=data)
+```
 
-**[`FastAPI`](../../../yy-auth/requirements.txt) 的作用，就是把 Python 代码组织成一个结构清楚、能对外提供接口的后端服务。**
+这意味着项目通常会对响应格式做统一包装，而不是每个接口想怎么回就怎么回。
 
-## 现阶段不要钻太深的点
+## 对前端最有帮助的一个理解方式
 
-当前先不用死磕这些：
-- 异步到底怎么回事
-- 依赖注入底层怎么实现
-- 自动 OpenAPI 文档原理
-- 生命周期细节
+可以把它粗略类比成：
 
-这些后面都会接触到。
+- 前端框架帮你组织页面
+- FastAPI 帮你组织接口
 
-现阶段更重要的是：
-- 看到它别怕
-- 知道它在项目里负责啥
-- 能认出常见写法
-- 能把它和真实接口联系起来
+前端里你会关心：
+- 路由
+- 组件
+- 状态
+- 页面入口
 
-## 当前一句话类比
+后端里你会关心：
+- 接口路径
+- 请求参数
+- 中间件
+- 数据库依赖
+- service 调用
 
-**前端里，框架帮你把页面组织起来；后端里，[`FastAPI`](../../../yy-auth/requirements.txt) 帮你把接口世界组织起来。**
+## 一句话总结
+
+现阶段最值得记住的是：
+
+**FastAPI 不是后端里“具体干活的人”，而是把请求、参数、依赖、路由和文档页组织起来的框架骨架。**

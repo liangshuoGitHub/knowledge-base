@@ -19,7 +19,8 @@ export default defineConfig({
     siteTitle: '个人知识库',
     nav: [
       { text: '首页', link: '/' },
-      { text: 'Python', link: '/01-python/' }
+      { text: 'Python', link: '/01-python/' },
+      { text: 'Docker', link: '/02-docker/' }
     ],
     sidebar: {
       '/01-python/': [
@@ -52,7 +53,29 @@ export default defineConfig({
           text: '项目实战',
           items: [
             { text: 'yy-auth 项目整体认知', link: '/01-python/03-project-practice/yy-auth-overview' },
-            { text: 'yy-auth 请求链路初识', link: '/01-python/03-project-practice/yy-auth-request-flow' }
+            { text: 'yy-auth 请求链路初识', link: '/01-python/03-project-practice/yy-auth-request-flow' },
+            { text: 'zhinao-plan 接口链路初识', link: '/01-python/03-project-practice/zhinao-plan-request-flow' }
+          ]
+        }
+      ],
+      '/02-docker/': [
+        {
+          text: '总览',
+          items: [
+            { text: 'Docker 主题总览', link: '/02-docker/' }
+          ]
+        },
+        {
+          text: '基础认知',
+          items: [
+            { text: 'Docker 基础认知', link: '/02-docker/docker-basics' },
+            { text: 'Docker 与 Python 项目', link: '/02-docker/docker-with-python-projects' }
+          ]
+        },
+        {
+          text: '排障实践',
+          items: [
+            { text: 'Docker 排障记录：以 zhinao-plan 为例', link: '/02-docker/docker-troubleshooting-notes' }
           ]
         }
       ]
