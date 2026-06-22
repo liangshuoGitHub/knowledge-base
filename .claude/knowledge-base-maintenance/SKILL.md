@@ -117,18 +117,24 @@ description: 用于维护 [`knowledge-base-repo`](knowledge-base-repo) 的项目
 
 不要只堆零散结论。
 
-### 7. 多会话沉淀走「待整理碎片」缓冲带，不直接落正文
+### 7. 多会话沉淀走「统一收件箱」缓冲带，不直接落正文
+
 同一主题常被拆进多个会话，沉淀时按这个流程处理，不要把会话草稿直接改写成正式章节。
 
-完整流程：`会话产出草稿 → 进「## 待整理碎片」区 → 攒够/想清楚后提炼进正文 → 清空已提炼碎片`。面向人的说明见 [`knowledge-base-repo/00-index/index.md`](knowledge-base-repo/00-index/index.md)。
+完整流程：`会话产出草稿 → 进统一收件箱 00-index/inbox.md → 攒够/想清楚后提炼进正文 → 清空已提炼条目`。面向人的说明见 [`knowledge-base-repo/00-index/index.md`](knowledge-base-repo/00-index/index.md)。
 
-执行约束：
+这套流程由两个专职 skill 承担，本 maintenance skill 只提供它们共同遵守的表达/链接/提交规范：
 
-- **放草稿**：用户说「放进待整理碎片」时，把草稿原样归到**最相关的正式文档末尾**的 `## 待整理碎片` 区，此阶段不改写、不并入正文、不强行归类。如果目标文档还没有该区，就在末尾新建一个，并在区首用引用块注明来源指向 [`knowledge-base-repo/00-index/index.md`](knowledge-base-repo/00-index/index.md)。
-- **判断归到哪篇**：优先归进已有的对应主题文档（如 `zhinao-plan` 相关进 `03-project-practice/zhinao-plan-request-flow.md`），实在无主题可归才考虑新建。
-- **提炼**：用户说「提炼/整理某主题碎片」时，对该区碎片做去重、合并、按主线重组，用「自己的话」并入正文对应章节，遵守本 skill 其它表达与链接规则。
-- **清空**：已并入正文的碎片，必须从 `## 待整理碎片` 区删除，只保留尚未消化的内容；若全部提炼完，保留空的区标题并注明「当前为空」，不要删掉整个区。
-- **不堆积**：碎片区是缓冲带不是归宿，发现某文档碎片越积越多时，主动提示用户安排一次提炼。
+- **入库**（会话 → 收件箱）由全局 skill `knowledge-base-deposit` 负责：基于会话上下文自动生成草稿，带时间戳追加进 [`knowledge-base-repo/00-index/inbox.md`](knowledge-base-repo/00-index/inbox.md)，只追加不改写。
+- **整理**（收件箱 → 正文）由仓库 skill [`knowledge-base-inbox-triage`](knowledge-base-repo/.claude/knowledge-base-inbox-triage/SKILL.md) 负责：把收件箱草稿去重、合并、按主题分发进正文，并清空已提炼条目。
+
+执行约束（无论由哪个 skill 触发，并入正文时都遵守）：
+
+- **归到哪篇**：优先归进已有的对应主题文档（如 `zhinao-plan` 相关进 `03-project-practice/zhinao-plan-request-flow.md`），实在无主题可归才考虑新建。
+- **提炼**：对收件箱里同主题的草稿做去重、合并、按主线重组，用「自己的话」并入正文对应章节，遵守本 skill 其它表达与链接规则。
+- **清空**：已并入正文的条目，必须从 [`knowledge-base-repo/00-index/inbox.md`](knowledge-base-repo/00-index/inbox.md) 删除，只保留尚未消化的；若全部提炼完，保留收件箱骨架并使其回到「当前为空」状态，不要删掉整个文件。
+- **不堆积**：收件箱是缓冲带不是归宿，发现条目越积越多时，主动提示用户安排一次整理。
+- **旧碎片区已废弃**：早期版本曾把草稿按主题分散到各正文文档末尾的 `## 待整理碎片` 区，现已统一改为收件箱模式。不要再新建文档级 `## 待整理碎片` 区。
 
 ### 8. 主题页与维护规则页分工不同
 如果某个主题下存在维护规则页面，例如 [`knowledge-base-repo/01-python/update-rules.md`](knowledge-base-repo/01-python/update-rules.md)，要遵守“收敛而不是删除”的原则：
