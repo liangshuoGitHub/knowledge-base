@@ -1,6 +1,6 @@
 ---
 name: knowledge-base-inbox-triage
-description: 用于整理 [`knowledge-base-repo`](knowledge-base-repo) 的统一收件箱 [`00-index/inbox.md`](knowledge-base-repo/00-index/inbox.md)。触发提示词实例（用户在知识库目录下说出其中任意一句就应使用本 skill）：「整理知识库碎片」「整理知识库草稿」「整理碎片」「整理收件箱」「把 inbox 提炼进正文」「分发收件箱草稿」「消化一下待整理的内容」。它负责把收件箱里按时间累积的草稿，去重、合并、按主题分发进正文对应章节，并清空已提炼的条目。仅服务于本仓库。
+description: 用于整理 [`knowledge-base-repo`](knowledge-base-repo) 的统一收件箱 [`00-index/inbox.md`](knowledge-base-repo/00-index/inbox.md)。触发提示词实例（用户在知识库目录下说出其中任意一句就应使用本 skill）：「整理知识库碎片」「整理知识库草稿」「收集知识库碎片」「整理收件箱」「把 inbox 提炼进正文」「分发收件箱草稿」「消化一下待整理的内容」。它负责把收件箱里按时间累积的草稿，去重、合并、按主题分发进正文对应章节，并清空已提炼的条目。仅服务于本仓库。
 ---
 
 # Knowledge Base Inbox Triage（收件箱整理）
