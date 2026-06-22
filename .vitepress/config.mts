@@ -19,10 +19,20 @@ export default defineConfig({
     siteTitle: '个人知识库',
     nav: [
       { text: '首页', link: '/' },
+      { text: '使用方法', link: '/00-index/' },
       { text: 'Python', link: '/01-python/' },
       { text: 'Docker', link: '/02-docker/' }
     ],
     sidebar: {
+      '/00-index/': [
+        {
+          text: '知识库使用方法',
+          items: [
+            { text: '使用方法总览', link: '/00-index/' },
+            { text: '会话收尾沉淀模板', link: '/00-index/session-handoff-template' }
+          ]
+        }
+      ],
       '/01-python/': [
         {
           text: '总览',
