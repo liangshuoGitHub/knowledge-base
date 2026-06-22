@@ -4,7 +4,7 @@
 
 这一篇专门解决一个问题：
 
-**请求进入 [`yy-auth`](../../../../yy-auth) 以后，大概是怎么走的？**
+**请求进入 `yy-auth` 以后，大概是怎么走的？**
 
 这件事很重要，因为很多时候看后端项目之所以乱，不是代码真有那么可怕，而是脑子里没有“请求链路图”。
 
@@ -17,7 +17,7 @@
 
 ## 先说一句最通俗的话
 
-你可以把一个请求进入 [`yy-auth`](../../../../yy-auth) 理解成：
+你可以把一个请求进入 `yy-auth` 理解成：
 
 **先过门卫，再验身份，再看有没有权限，最后才轮到真正办事的窗口。**
 
@@ -47,7 +47,7 @@ flowchart TD
 
 ## 第 1 站：应用入口
 
-入口在 [`yy-auth/app/main.py`](../../../../yy-auth/app/main.py)。
+入口在 `yy-auth/app/main.py`。
 
 在这里做了几件大事：
 - 初始化日志
@@ -67,15 +67,15 @@ flowchart TD
 你可以先把它理解成：
 **请求在真正进入接口之前，要先走的几道流程。**
 
-### [`mysql.py`](../../../../yy-auth/app/middlewares/mysql.py)
+### `mysql.py`
 作用：
 - 给当前请求准备数据库 session
-- 放到 [`request.state.db`](../../../../yy-auth/app/middlewares/mysql.py:10) 里
+- 放到 `request.state.db` 里
 
 通俗理解：
 **先把“这次办事要用的数据库连接”准备好。**
 
-### [`jwt.py`](../../../../yy-auth/app/middlewares/jwt.py)
+### `jwt.py`
 作用：
 - 看请求有没有带 token
 - 校验 token 是否合法
@@ -83,12 +83,12 @@ flowchart TD
 - 把用户信息塞进请求上下文
 
 关键位置在：
-- [`request.state.user = user`](../../../../yy-auth/app/middlewares/jwt.py:31)
+- `request.state.user = user`
 
 通俗理解：
 **先确认你是谁，别匿名瞎闯。**
 
-### [`iam.py`](../../../../yy-auth/app/middlewares/iam.py)
+### `iam.py`
 作用：
 - 对部分接口做权限判断
 - 看当前用户有没有资格调用该接口
@@ -103,7 +103,7 @@ flowchart TD
 
 ## 第 3 站：路由分发
 
-当请求通过前面的关卡后，会来到 [`yy-auth/app/routes.py`](../../../../yy-auth/app/routes.py)。
+当请求通过前面的关卡后，会来到 `yy-auth/app/routes.py`。
 
 这里负责把不同前缀的请求分发给不同模块。
 
@@ -120,11 +120,11 @@ flowchart TD
 ## 第 4 站：具体接口函数
 
 真正的接口处理函数一般在 views 文件里，比如：
-- [`yy-auth/app/apis/user/views.py`](../../../../yy-auth/app/apis/user/views.py)
-- [`yy-auth/app/apis/iam/views.py`](../../../../yy-auth/app/apis/iam/views.py)
+- `yy-auth/app/apis/user/views.py`
+- `yy-auth/app/apis/iam/views.py`
 
 例如登录接口：
-- [`@router.post('/user/login')`](../../../../yy-auth/app/apis/user/views.py:44)
+- `@router.post('/user/login')`
 
 在这里会做的事情通常是：
 - 接收参数
@@ -155,18 +155,18 @@ flowchart TD
 ### 今天特别值得补的一层理解
 
 在 service 里你会看到两种很典型的资源使用方式：
-- [`self.session`](../../../../yy-auth/app/apis/user/service.py:185)
-- [`get_redis()`](../../../../yy-auth/app/core/cache.py:36)
+- `self.session`
+- `get_redis()`
 
 这两种写法的差异，当前可以先这样理解：
-- [`self.session`](../../../../yy-auth/app/apis/user/service.py:185) 代表数据库会话已经在对象初始化时注入进来了
-- [`get_redis()`](../../../../yy-auth/app/core/cache.py:36) 代表 Redis 客户端是通过工具函数按需获取
+- `self.session` 代表数据库会话已经在对象初始化时注入进来了
+- `get_redis()` 代表 Redis 客户端是通过工具函数按需获取
 
 这不是因为 [`MySQL`](../04-common-infra/mysql.md) 和 [`Redis`](../04-common-infra/redis.md) 在技术本质上谁更特殊，而是因为这个项目对它们采用了不同的封装方式。
 
 如果你以后再看到：
-- [`self.session.query(...)`](../../../../yy-auth/app/apis/user/providers/qihoo.py:44)
-- [`rds = get_redis()`](../../../../yy-auth/app/apis/user/service.py:145)
+- `self.session.query(...)`
+- `rds = get_redis()`
 
 就不要只盯着“这一行在干嘛”，还要顺手问自己：
 - 这个资源是从哪传进来的
@@ -176,7 +176,7 @@ flowchart TD
 ## 第 6 站：返回响应
 
 最后结果通常会包装成统一响应对象返回，比如：
-- [`JsonResponse`](../../../../yy-auth/app/apis/user/views.py:13)
+- `JsonResponse`
 
 这能保证接口返回结构更一致。
 
@@ -190,9 +190,9 @@ flowchart TD
 1. 客户端调用登录接口
 2. 请求进入应用
 3. 走中间件链路
-4. 路由命中 [`/user/login`](../../../../yy-auth/app/apis/user/views.py:44)
-5. 进入 [`login()`](../../../../yy-auth/app/apis/user/views.py:45)
-6. 调 [`UserService`](../../../../yy-auth/app/apis/user/views.py:17) 相关逻辑
+4. 路由命中 `/user/login`
+5. 进入 `login()`
+6. 调 `UserService` 相关逻辑
 7. 校验账号、密码、用户状态
 8. 生成 token 或返回登录结果
 9. 用统一格式返回给前端
@@ -220,4 +220,4 @@ flowchart TD
 
 **后端请求链路，说白了就是：先进门、验身份、查权限、找窗口、办业务、给回执。**
 
-只要这条主线先记住，后面看 [`yy-auth`](../../../../yy-auth) 代码就会顺很多。
+只要这条主线先记住，后面看 `yy-auth` 代码就会顺很多。

@@ -38,10 +38,10 @@
 
 ### 真实项目是最好的教材
 当前最适合我的切入口：
-- [`yy-auth`](../../yy-auth)
-- [`zhinao-clue-standard`](../../zhinao-clue-standard)
+- `yy-auth`
+- `zhinao-clue-standard`
 
-但第一站先从 [`yy-auth`](../../yy-auth) 开始。
+但第一站先从 `yy-auth` 开始。
 
 因为它已经能帮我认识很多 Python Web 后端里的真实东西：
 - 接口框架
@@ -127,7 +127,7 @@ flowchart TD
 - `Dockerfile` ≈ 服务部署镜像说明书
 
 - 具体接口文件 ≈ 页面事件入口 / 接口入口层
-  - 在 [`yy-auth/app/routes.py`](../../yy-auth/app/routes.py:9) 里能看到项目通过 [`importlib.import_module()`](../../yy-auth/app/routes.py:9) 去加载 `apis.user.views`、`apis.iam.views` 这类模块
+  - 在 `yy-auth/app/routes.py` 里能看到项目通过 `importlib.import_module()` 去加载 `apis.user.views`、`apis.iam.views` 这类模块
   - 这说明这个项目里“接口入口层”主要分布在各业务模块下的 `views.py` 中
 
 - 业务逻辑层
@@ -162,13 +162,13 @@ flowchart TD
 目标：看到常见词不慌。
 
 比如：
-- [`FastAPI`](../../yy-auth/requirements.txt)
-- [`uvicorn`](../../yy-auth/requirements.txt)
-- [`gunicorn`](../../yy-auth/requirements.txt)
-- [`pydantic`](../../yy-auth/requirements.txt)
-- [`SQLAlchemy`](../../yy-auth/requirements.txt)
-- [`Redis`](../../yy-auth/requirements.txt)
-- [`Nacos`](../../yy-auth/app/core/zn_nacos.py)
+- `FastAPI`
+- `uvicorn`
+- `gunicorn`
+- `pydantic`
+- `SQLAlchemy`
+- `Redis`
+- `Nacos`
 
 这里先追求：
 - 会大概读

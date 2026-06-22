@@ -2,7 +2,7 @@
 
 ## 这篇是干什么的
 
-这篇的目标不是把 [`yy-auth`](../../../../yy-auth) 所有源码讲完。
+这篇的目标不是把 `yy-auth` 所有源码讲完。
 
 它主要解决一个很现实的问题：
 
@@ -12,7 +12,7 @@
 
 ## 先说一句人话版结论
 
-[`yy-auth`](../../../../yy-auth) 可以先理解成：
+`yy-auth` 可以先理解成：
 
 **一个统一认证 / 用户 / 权限 / 组织管理的后端服务。**
 
@@ -42,14 +42,14 @@
 
 ## 技术上它是什么项目
 
-从 [`requirements.txt`](../../../../yy-auth/requirements.txt) 来看，它是一个典型的 Python 企业后端服务，核心栈包括：
-- [`FastAPI`](../../../../yy-auth/requirements.txt)
-- [`uvicorn`](../../../../yy-auth/requirements.txt)
-- [`gunicorn`](../../../../yy-auth/requirements.txt)
-- [`pydantic`](../../../../yy-auth/requirements.txt)
-- [`SQLAlchemy`](../../../../yy-auth/requirements.txt)
-- [`Redis`](../../../../yy-auth/requirements.txt)
-- [`Nacos`](../../../../yy-auth/app/core/zn_nacos.py)
+从 `requirements.txt` 来看，它是一个典型的 Python 企业后端服务，核心栈包括：
+- `FastAPI`
+- `uvicorn`
+- `gunicorn`
+- `pydantic`
+- `SQLAlchemy`
+- `Redis`
+- `Nacos`
 
 如果只说一句：
 **它不是脚本项目，而是一个正式企业服务。**
@@ -57,10 +57,10 @@
 ## 我当前应该先怎么理解它
 
 ### 第一层：它是个接口服务
-入口在 [`app/main.py`](../../../../yy-auth/app/main.py)。
+入口在 `app/main.py`。
 
 里面能看到：
-- 它基于 [`FastAPI`](../../../../yy-auth/app/main.py:21)
+- 它基于 `FastAPI`
 - 启动时会注册中间件
 - 会初始化数据库和缓存
 - 会注册一批路由
@@ -97,7 +97,7 @@
 
 ## 当前最值得记住的入口文件
 
-### [`app/main.py`](../../../../yy-auth/app/main.py)
+### `app/main.py`
 服务入口。
 
 作用：
@@ -110,7 +110,7 @@
 可以把它理解成：
 **项目开机时的总开关。**
 
-### [`app/routes.py`](../../../../yy-auth/app/routes.py)
+### `app/routes.py`
 总路由分发文件。
 
 作用：
@@ -119,7 +119,7 @@
 可以把它理解成：
 **整个后端项目的总路由表。**
 
-### [`app/middlewares/jwt.py`](../../../../yy-auth/app/middlewares/jwt.py)
+### `app/middlewares/jwt.py`
 JWT 鉴权中间件。
 
 作用：
@@ -130,7 +130,7 @@ JWT 鉴权中间件。
 可以把它理解成：
 **后端的门卫之一，先检查你是不是带着合法通行证进门。**
 
-### [`app/middlewares/iam.py`](../../../../yy-auth/app/middlewares/iam.py)
+### `app/middlewares/iam.py`
 权限校验中间件。
 
 作用：
@@ -139,7 +139,7 @@ JWT 鉴权中间件。
 可以把它理解成：
 **第二道门卫，检查你进来了以后有没有资格去干这件事。**
 
-### [`app/apis/user/views.py`](../../../../yy-auth/app/apis/user/views.py)
+### `app/apis/user/views.py`
 用户相关接口入口。
 
 作用：
@@ -152,7 +152,7 @@ JWT 鉴权中间件。
 可以把它理解成：
 **用户体系的大门面。**
 
-### [`app/apis/iam/views.py`](../../../../yy-auth/app/apis/iam/views.py)
+### `app/apis/iam/views.py`
 权限相关接口入口。
 
 作用：
@@ -202,7 +202,7 @@ JWT 鉴权中间件。
 
 ## 当前一句话总结
 
-**[`yy-auth`](../../../../yy-auth) 不是用来一口吃掉的源码山，而是我认识 Python 企业后端项目的第一张地图。**
+**`yy-auth` 不是用来一口吃掉的源码山，而是我认识 Python 企业后端项目的第一张地图。**
 
 这句话很重要。
 

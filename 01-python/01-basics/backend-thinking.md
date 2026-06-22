@@ -176,8 +176,8 @@
 这不是死规则，但对现在这个阶段非常够用。
 
 当你以后在项目里看到：
-- [`self.session`](../../yy-auth/app/apis/user/service.py:185)
-- [`get_redis()`](../../yy-auth/app/core/cache.py:36)
+- `self.session`
+- `get_redis()`
 
 脑子里要开始有这种感觉：
 - 一个是在动长期业务数据

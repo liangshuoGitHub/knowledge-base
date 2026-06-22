@@ -23,9 +23,9 @@
 
 这些都更适合存到关系型数据库里，而 [`MySQL`](./mysql-basics.md) 就是最常见的一种。
 
-## 在 [`yy-auth`](../../../../yy-auth) 这种项目里，它大概负责什么
+## 在 `yy-auth` 这种项目里，它大概负责什么
 
-像 [`yy-auth`](../../../../yy-auth) 这种认证与权限服务，天然就很依赖数据库。
+像 `yy-auth` 这种认证与权限服务，天然就很依赖数据库。
 
 因为它要管理的很多数据都具有这些特点：
 - 要长期保存
@@ -50,7 +50,7 @@
 - `update ...`
 
 但在 Python 项目里，很多时候你先看到的不是 SQL，而是：
-- [`SQLAlchemy`](../../yy-auth/requirements.txt)
+- `SQLAlchemy`
 - [`Session`](./mysql-basics.md)
 - [`Model`](./mysql-basics.md)
 - [`Column`](./mysql-basics.md)
@@ -74,32 +74,32 @@ ORM 可以先简单理解成：
 今天你问到一个特别关键的问题：
 
 为什么业务里常看到：
-- [`self.session`](../../yy-auth/app/apis/user/service.py:185)
+- `self.session`
 
 而不是每次都手动重新连一次数据库。
 
 ### 这个项目的路径是这样的
 
 先在中间件里为当前请求准备数据库会话：
-- [`request.state.db`](../../yy-auth/app/middlewares/mysql.py:10)
+- `request.state.db`
 
 然后依赖函数把它取出来：
-- [`def get_db(request: Request) -> Session:`](../../yy-auth/app/dependencies/db.py:5)
-- [`return request.state.db`](../../yy-auth/app/dependencies/db.py:6)
+- `def get_db(request: Request) -> Session:`
+- `return request.state.db`
 
 再在接口层通过依赖注入拿到 `session`：
-- [`session: Session = Depends(get_db)`](../../yy-auth/app/apis/user/views.py:204)
+- `session: Session = Depends(get_db)`
 
 最后传给 service：
-- [`service = UserService(session)`](../../yy-auth/app/apis/user/views.py:206)
+- `service = UserService(session)`
 
-而在 [`UserService.__init__()`](../../yy-auth/app/apis/user/service.py:184) 里，会把它挂到对象上：
-- [`self.session = session`](../../yy-auth/app/apis/user/service.py:185)
+而在 `UserService.__init__()` 里，会把它挂到对象上：
+- `self.session = session`
 
 所以后面业务代码里就能直接使用：
-- [`self.session`](../../yy-auth/app/apis/user/service.py:185)
+- `self.session`
 
-## 为什么 [`self.session`](../../yy-auth/app/apis/user/service.py:185) 看起来这么“自然”
+## 为什么 `self.session` 看起来这么“自然”
 
 因为它不是凭空来的，而是对象初始化时就已经注入进来了。
 
@@ -108,7 +108,7 @@ ORM 可以先简单理解成：
 - 后面方法里统一用 `this.api`
 
 Python 这里非常像：
-- [`self.session`](../../yy-auth/app/apis/user/service.py:185) ≈ `this.session`
+- `self.session` ≈ `this.session`
 
 也就是说，它背后不是“数据库有特殊魔法”，而是：
 
@@ -128,19 +128,19 @@ Python 这里非常像：
 - 提交事务
 
 所以看到：
-- [`self.session.query(...)`](../../yy-auth/app/apis/user/providers/qihoo.py:44)
+- `self.session.query(...)`
 
 你可以直接理解成：
 - “拿当前这个数据库会话去查数据”
 
 ## [`Model`](./mysql-basics.md) 和 [`Column`](./mysql-basics.md) 该怎么读
 
-像 [`ProviderSSO`](../../yy-auth/app/apis/user/models.py:72) 这种类，就是 ORM 模型。
+像 `ProviderSSO` 这种类，就是 ORM 模型。
 
 它本质上对应数据库中的一张表。
 
 而像下面这句：
-- [`name = Column(String(30), unique=True, comment='标识')`](../../yy-auth/app/apis/user/models.py:73)
+- `name = Column(String(30), unique=True, comment='标识')`
 
 可以拆成这样理解：
 - `name`：字段名
@@ -160,7 +160,7 @@ Python 这里非常像：
 先抓这几类就够了：
 - 模型定义在哪
 - [`Session`](./mysql-basics.md) 从哪来
-- 是哪个 service 在用 [`self.session`](../../yy-auth/app/apis/user/service.py:185)
+- 是哪个 service 在用 `self.session`
 - 查的是哪张表
 - 改完数据后在哪提交
 
@@ -169,8 +169,8 @@ Python 这里非常像：
 ## 和 Redis 的区别要怎么记
 
 今天另一个关键点是：
-- MySQL 常通过 [`self.session`](../../yy-auth/app/apis/user/service.py:185) 使用
-- Redis 常通过 [`get_redis()`](../../yy-auth/app/core/cache.py:36) 使用
+- MySQL 常通过 `self.session` 使用
+- Redis 常通过 `get_redis()` 使用
 
 这不是因为 MySQL 天生该这样、Redis 天生不该那样。
 
@@ -185,4 +185,4 @@ Python 这里非常像：
 
 ## 当前一句话总结
 
-**MySQL 在当前学习阶段不用先学成数据库专家，先把它理解成后端长期存业务数据的仓库，再看懂 [`Session`](./mysql-basics.md)、[`Model`](./mysql-basics.md)、[`Column`](./mysql-basics.md)、[`self.session`](../../yy-auth/app/apis/user/service.py:185) 这几件事怎么在 [`yy-auth`](../../../../yy-auth) 里串起来，就已经非常够用了。**
+**MySQL 在当前学习阶段不用先学成数据库专家，先把它理解成后端长期存业务数据的仓库，再看懂 [`Session`](./mysql-basics.md)、[`Model`](./mysql-basics.md)、[`Column`](./mysql-basics.md)、`self.session` 这几件事怎么在 `yy-auth` 里串起来，就已经非常够用了。**

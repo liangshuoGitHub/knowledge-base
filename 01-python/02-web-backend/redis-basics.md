@@ -37,9 +37,9 @@
 
 这些场景就很适合 Redis。
 
-## 在 [`yy-auth`](../../../../yy-auth) 这种项目里，它为什么合理
+## 在 `yy-auth` 这种项目里，它为什么合理
 
-[`yy-auth`](../../../../yy-auth) 是认证与权限相关服务。
+`yy-auth` 是认证与权限相关服务。
 
 这类服务天然容易碰到很多“高频但不一定长期存档”的数据，比如：
 - 登录过程中的临时状态
@@ -55,37 +55,37 @@
 你今天问到的一个很关键的问题是：
 
 为什么数据库经常看到：
-- [`self.session`](../../yy-auth/app/apis/user/service.py:185)
+- `self.session`
 
 而 Redis 经常看到：
-- [`get_redis()`](../../yy-auth/app/core/cache.py:36)
+- `get_redis()`
 
 ### Redis 这条线是这样的
 
 项目会先初始化连接池：
-- [`init_cache()`](../../yy-auth/app/core/cache.py:11)
-- [`_pool = redis.ConnectionPool(...)`](../../yy-auth/app/core/cache.py:22)
+- `init_cache()`
+- `_pool = redis.ConnectionPool(...)`
 
 然后提供一个获取客户端的函数：
-- [`def get_redis(db=None):`](../../yy-auth/app/core/cache.py:36)
-- [`return redis.Redis(connection_pool=_pool, db=db if db is not None else _default_db)`](../../yy-auth/app/core/cache.py:45)
+- `def get_redis(db=None):`
+- `return redis.Redis(connection_pool=_pool, db=db if db is not None else _default_db)`
 
 所以业务里常见写法是：
-- [`rds = get_redis()`](../../yy-auth/app/apis/user/service.py:145)
+- `rds = get_redis()`
 
 也就是说，这个项目更偏向：
 
 **Redis 用的时候现拿，而不是在每个 service 初始化时都挂成对象属性。**
 
-## 这和 [`self.session`](../../yy-auth/app/apis/user/service.py:185) 的差异该怎么理解
+## 这和 `self.session` 的差异该怎么理解
 
 最容易记住的一句话是：
 
 **这不是技术本质不同，而是项目封装方式不同。**
 
 ### 当前项目里的差异
-- MySQL：通过依赖注入传进 service，再变成 [`self.session`](../../yy-auth/app/apis/user/service.py:185)
-- Redis：通过连接池 + [`get_redis()`](../../yy-auth/app/core/cache.py:36) 按需获取
+- MySQL：通过依赖注入传进 service，再变成 `self.session`
+- Redis：通过连接池 + `get_redis()` 按需获取
 
 ### 用前端视角类比
 
@@ -96,14 +96,14 @@
 - 后面统一 `this.api.xxx()`
 
 这更像：
-- [`self.session`](../../yy-auth/app/apis/user/service.py:185)
+- `self.session`
 
 #### 写法 B：需要时调用工具函数获取
 - `const client = getStorageClient()`
 - 用完就处理当前逻辑
 
 这更像：
-- [`get_redis()`](../../yy-auth/app/core/cache.py:36)
+- `get_redis()`
 
 ## Redis 专题当前最值得先记住什么
 
@@ -113,7 +113,7 @@
 - 它是内存型存储，速度快
 - 它常用来放高频、临时、缓存型数据
 - 它不等于 MySQL，也不主要负责长期结构化业务数据
-- 在当前项目里，它常通过 [`get_redis()`](../../yy-auth/app/core/cache.py:36) 获取客户端
+- 在当前项目里，它常通过 `get_redis()` 获取客户端
 
 ## 以后如果继续扩这篇，可以往哪长
 
@@ -129,4 +129,4 @@
 
 ## 当前一句话总结
 
-**Redis 在当前阶段先理解成“后端里存高频临时数据的高速缓存仓库”就够了；在 [`yy-auth`](../../../../yy-auth) 里，它通常不是像 MySQL 那样通过 [`self.session`](../../yy-auth/app/apis/user/service.py:185) 注入到对象里，而是通过 [`get_redis()`](../../yy-auth/app/core/cache.py:36) 按需获取。**
+**Redis 在当前阶段先理解成“后端里存高频临时数据的高速缓存仓库”就够了；在 `yy-auth` 里，它通常不是像 MySQL 那样通过 `self.session` 注入到对象里，而是通过 `get_redis()` 按需获取。**

@@ -69,7 +69,7 @@ const price = 19.9
 
 ### 当前最值得记住的一点
 
-Python 变量声明时不用写 [`let`](./python-syntax-for-frontend.md:1) 或 [`const`](./python-syntax-for-frontend.md:1)。
+Python 变量声明时不用写 `let` 或 `const`。
 
 直接赋值就是定义变量。
 
@@ -119,7 +119,7 @@ const user = {
 
 ---
 
-## 3. [`if`](./python-syntax-for-frontend.md:1) 条件判断
+## 3. `if` 条件判断
 
 ```python
 if age >= 18:
@@ -145,10 +145,10 @@ Python 不用花括号，而是靠**缩进**表示代码块。
 这件事一开始很不习惯，但必须尽快适应。
 
 你以后看到：
-- [`if`](./python-syntax-for-frontend.md:1)
-- [`for`](./python-syntax-for-frontend.md:1)
-- [`def`](./python-syntax-for-frontend.md:1)
-- [`class`](./python-syntax-for-frontend.md:1)
+- `if`
+- `for`
+- `def`
+- `class`
 
 都要立刻想到：
 
@@ -156,7 +156,7 @@ Python 不用花括号，而是靠**缩进**表示代码块。
 
 ---
 
-## 4. [`for`](./python-syntax-for-frontend.md:1) 循环
+## 4. `for` 循环
 
 ```python
 for user in users:
@@ -182,7 +182,7 @@ for (const user of users) {
 
 ---
 
-## 5. 函数 [`def`](./python-syntax-for-frontend.md:1)
+## 5. 函数 `def`
 
 ```python
 def add(a, b):
@@ -274,7 +274,7 @@ Python 项目阅读里，import 不只是“引入依赖”，它还常常帮你
 
 ---
 
-## 8. 异常处理 [`try`](./python-syntax-for-frontend.md:1) / [`except`](./python-syntax-for-frontend.md:1)
+## 8. 异常处理 `try` / `except`
 
 ```python
 try:
@@ -349,10 +349,10 @@ class UserService:
 ```
 
 这里面其实就是几种基础语法的组合：
-- [`class`](./python-syntax-for-frontend.md:1)
-- [`def`](./python-syntax-for-frontend.md:1)
+- `class`
+- `def`
 - [`self`](./common-commands.md)
-- [`if`](./python-syntax-for-frontend.md:1)
+- `if`
 - `return`
 - 类型标注
 

@@ -47,10 +47,10 @@
 ### 你可以怎么命令我
 
 后续可以直接这样说：
-- 把今天关于 [`yy-auth`](../yy-auth) 的内容补进知识库
-- 把 [`FastAPI`](../yy-auth/requirements.txt) 的解释补到 Python Web 那一节
+- 把今天关于 `yy-auth` 的内容补进知识库
+- 把 `FastAPI` 的解释补到 Python Web 那一节
 - 把这些名词读法整理到 [`glossary.md`](./01-python/glossary.md)
-- 给 [`yy-auth`](../yy-auth) 这一节补一张 Mermaid 图
+- 给 `yy-auth` 这一节补一张 Mermaid 图
 - 把这段内容补到 [`common-commands.md`](./01-python/01-basics/common-commands.md)
 
 ### 我自己补充时怎么做
