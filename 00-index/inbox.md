@@ -353,6 +353,55 @@ for opt_id in existing_options_map:
 
 ---
 
+## [2026-06-23 17:40] Vuex actions 模块中 export 非函数值的陷阱 + antdv Dropdown 自定义面板
+
+- 主题：Vuex namespaced module 的 actions 文件不能 export 普通对象；antdv Dropdown 的 overlay slot 实现自定义面板
+- 关联仓库/项目：ai-app-aiexpert-backend
+
+### 结论 / 认知
+
+1. **Vuex actions 文件中所有 export 的成员都会被当作 action handler 注册**。如果 export 一个普通对象（如 `export const ENV_MAP = {...}`），TypeScript 会报"不能将类型 Record<string, string> 分配给类型 Action<S, R>"。解法：把非 action 的常量抽到独立 constants.ts 文件中 export。
+
+2. **antdv `a-dropdown` 的 `#overlay` slot 可以放任意内容**，不局限于 `a-menu`。只要在 slot 中放一个带样式的 div，就能实现自定义下拉面板（如 Checkbox 列表、表单等）。关键点：
+   - 面板内元素点击时需 `@click.stop` 阻止冒泡，否则 Dropdown 会自动关闭
+   - placement 设为 `topRight`（向上弹出）可避免被页面底部截断
+
+3. **后端接口的环境白名单要和前端常量同步维护**。前端 `DEPLOY_ENV_OPTIONS` 和后端 `VALID_ENVIRONMENTS` 如果不一致，会导致前端选了某个环境但后端拒绝。MVP 阶段两边手动对齐（都是 wx/wa），后续可考虑前端启动时调一个"获取可用环境列表"接口来动态获取。
+
+### 命令 / 代码片段
+
+```typescript
+// ❌ 错误：在 actions.ts 中 export 普通对象
+export const ENV_MAP = { wx: 'WX系统' }  // Vuex 会尝试把它注册为 action
+
+// ✅ 正确：抽到独立文件
+// constants.ts
+export const ENV_MAP = { wx: 'WX系统' }
+// actions.ts
+import { ENV_MAP } from './constants'
+```
+
+```vue
+<!-- antdv Dropdown 自定义面板（非 Menu） -->
+<a-dropdown :trigger="['click']" placement="topRight">
+  <a-button>部署到环境 ▾</a-button>
+  <template #overlay>
+    <div class="custom-panel">
+      <div v-for="env in options" @click.stop="toggle(env)">
+        <a-checkbox :checked="isDeployed(env)" />
+        <span>{{ env.label }}</span>
+      </div>
+    </div>
+  </template>
+</a-dropdown>
+```
+
+### 术语
+- **Vuex Module actions 注册机制**：Vuex 在创建 namespaced module 时，会遍历 actions 对象的所有 key-value，期望每个 value 都是函数（ActionHandler）或 `{root, handler}` 对象
+- **overlay slot**：antdv Dropdown 的具名插槽，用于自定义下拉内容（替代默认的 Menu）
+
+---
+
 ## [2026-06-23 15:30] AgentHub run vs debug 接口选型 + Ant Design Vue 版本陷阱
 
 - 主题：AI 专家后台即时试用功能的接口选型决策，以及 Ant Design Vue 3.x/4.x API 差异踩坑
