@@ -5,6 +5,51 @@
 > 流程说明见 [`知识库使用方法`](./index.md)。
 > 整理后已提炼进正文的条目，从本文件删除，只保留尚未消化的草稿。
 
+## [2026-06-23 16:50] Ant Design Vue Modal 样式穿透与弹窗布局最佳实践
+
+- 主题：ant-design-vue 3.x Modal 组件的样式穿透问题及弹窗内容滚动+底部固定的布局方案
+- 关联仓库/项目：ai-app-aiexpert-backend
+
+### 结论 / 认知
+1. **scoped 样式中 `:deep(.ant-modal-body)` 对 teleport 渲染的 Modal 无效**。因为 Modal 通过 teleport 渲染到 `document.body`，与组件的 scoped scope attribute 不匹配。
+2. **解决方案：`wrapClassName` + 全局样式**。给 `<a-modal>` 设置 `wrapClassName="my-modal-wrap"`，然后在全局 SCSS（不带 scoped）中写 `.my-modal-wrap .ant-modal-body { ... }`。
+3. **弹窗"上滚下固定"布局**：modal body 设为 `display: flex; flex-direction: column; max-height: 78vh;`，内容区域 `flex: 1; overflow-y: auto; min-height: 0;`，底部 footer `flex-shrink: 0;`。
+4. **全局 disabled 按钮样式覆盖自定义深色按钮**：全局样式中 `&[disabled] { background: #edf2fa; color: #81889c; }` 会覆盖自定义深色按钮。需用更高权重选择器 `.run-btn.ant-btn.ant-btn-primary[disabled]` + `!important` 来覆盖。
+
+### 命令 / 代码片段
+```vue
+<!-- Modal 使用 wrapClassName -->
+<a-modal wrapClassName="expert-detail-modal-wrap" :visible="visible" :footer="null">
+  <div class="scrollable-content">...</div>
+  <div class="fixed-footer">...</div>
+</a-modal>
+```
+
+```scss
+// 全局样式（非 scoped）
+.expert-detail-modal-wrap {
+  .ant-modal-body {
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: 78vh !important;
+  }
+}
+
+// 覆盖 disabled 按钮
+.run-btn.ant-btn.ant-btn-primary[disabled] {
+  background: #1f2430 !important;
+  color: rgba(255,255,255,0.45) !important;
+}
+```
+
+### 术语
+- **teleport**：Vue 3 内置组件，将子树渲染到 DOM 中另一个位置（Modal 渲染到 body 下），导致 scoped 样式失效
+- **wrapClassName**：ant-design-vue Modal 的属性，给最外层 wrapper div 添加 class，可用于全局样式定位
+
+### 待验证问题
+- ant-design-vue 4.x 是否改用 `rootClassName` 或 Composition API 的 `useStyle` 解决此问题？
+
 ## 这里装的是什么
 
 每条草稿都是某次会话临结束时自动生成的「原料」，不是成品。它带一个写入时间戳，方便后续按时间线回看和整理。
@@ -305,5 +350,53 @@ for opt_id in existing_options_map:
 
 1. 高级配置中的模型选择和温度/最大长度存在 `ext_data` 里，但后端 `create_agent` / `run_agent` 调用时还没用到这些参数。Phase 4 即时试用时需确认 AgentHub 接口是否支持
 2. `introduction`（介绍）存在 `ext_data.introduction` 而非独立字段，如果后续需按介绍搜索或在卡片上展示，可能要加独立数据库字段
+
+---
+
+## [2026-06-23 15:30] AgentHub run vs debug 接口选型 + Ant Design Vue 版本陷阱
+
+- 主题：AI 专家后台即时试用功能的接口选型决策，以及 Ant Design Vue 3.x/4.x API 差异踩坑
+- 关联仓库/项目：ai-app-aiexpert-backend、zhinao-plan
+
+### 结论 / 认知
+
+1. **AgentHub 的 run 和 debug 接口的使用场景完全不同**：
+   - `run_agent(agent_uuid, text)` — 针对**已注册**的 Agent（有 agent_uuid），直接用 uuid 运行，Agent 已保存好所有配置
+   - `debug_agent(agent_type, config, text)` — 针对**未创建**的 Agent（创建前预测试），需要传完整 config（definition/constraint/output）
+   - 后台管理的"即时试用"是对已部署专家测试 → 用 run
+   - 创建页面的"预测试"是对还没保存的配置测试 → 用 debug
+
+2. **AgentHub 返回的结果格式因 agent_type 而异**：
+   - `labeler`：response JSON 中 `label` 字段是 `[{"标签名": option_id}, ...]`
+   - `classifier`：分类结果可能在 `content.class` 中
+   - `checker`：可能返回非 JSON 纯文本
+   - 需要 `_parse_run_result()` 统一适配这三种情况
+
+3. **Ant Design Vue 3.x 和 4.x 的 Modal API 命名不同**：
+   - 3.x：`:visible` 控制显隐
+   - 4.x：`:open` 控制显隐（breaking change）
+   - 一定要先 `cat package.json | grep ant-design-vue` 确认版本再写代码
+
+### 命令 / 代码片段
+
+```python
+# AgentHub run 接口调用（已注册 Agent）
+agent_service = AiAgentService()
+result = agent_service.run_agent(expert.agent_uuid, test_content)
+# 返回: {"response": "...", "elapsed_ms": 846, "agent_type": "labeler"}
+```
+
+```python
+# 结果解析核心逻辑
+response_data = json.loads(agent_result["response"])
+# labeler: response_data["label"] = [{"食品安全": 181}, ...]
+# classifier: response_data["content"] = '{"class": "政治类", "core_event": "..."}'
+# checker: response 可能是纯文本 "是"
+```
+
+### 待验证问题
+
+1. AgentHub `run_agent` 是否支持传 `model_id` / `temperature` 等参数？目前 `ext_data` 中保存了这些高级配置但没有透传
+2. Puppeteer 为何无法访问 Vite 3 dev server（headless Chrome 被 Vite 的 base path 中间件拦截）—— 是否有 workaround？
 
 ---
