@@ -559,3 +559,45 @@ const envs = (state.expert?.support_env || '')
 3. 确认提交是否要扩展 deploy_expert 入参接收 accuracy/org（PM-2 待确认）
 
 ---
+
+## [2026-06-24 16:10] Ant Design Vue Modal 改不动外壳样式的根因：Teleport 渲染到 body，scoped :deep 选不中
+
+- 主题：为什么给 a-modal 写了圆角/隐藏关闭按钮的 scoped 样式不生效，根因与正确改法
+- 关联仓库/项目：ai-app-aiexpert-backend
+
+### 结论 / 认知
+
+1. **现象**：在弹窗组件的 `<style scoped>` 里写 `:deep(.ant-modal-content){border-radius:16px}`、`:deep(.ant-modal-close){display:none}`，编译没报错，但页面上完全不生效——弹窗还是直角、默认关闭按钮还在。
+
+2. **根因**：Ant Design Vue 的 Modal（以及 Drawer、message、Dropdown overlay 等）内部用 **Teleport 把真实 DOM 节点渲染到 `<body>` 末尾**，不在当前组件的 DOM 子树里。而 `scoped` 的作用域边界恰恰是"组件自己的 DOM 子树"——它给元素打 `data-v-xxx` 属性、给选择器加 `[data-v-xxx]` 限定。Teleport 出去的节点拿不到这个属性匹配，所以 scoped（哪怕加 `:deep`）选不中。
+
+3. **正确改法**：凡是要改 Modal 的**外壳层**（`.ant-modal-content` / `.ant-modal-close` / `.ant-modal-mask` / `.ant-modal-body` 这些）：
+   - 给 modal 传一个 `wrapClassName="xxx-wrap"`（Ant 会把它加到 Teleport 出去的最外层 wrap 上）；
+   - 把样式写进**全局（非 scoped）** 的 `global.scss`，用 `.xxx-wrap .ant-modal-content{...}` 这种带 wrap 前缀的选择器提权，避免污染其他弹窗。
+   - 组件内部 body 里的**自定义内容**（自己写的 header、按钮、卡片）才用 scoped，那些确实在组件子树内。
+
+4. **判断口诀**：样式写了不生效，先别怀疑选择器拼错——先想"这个节点真实挂在哪"。经 Teleport / Portal 渲染的组件，节点都跑到 body 了，scoped 天然管不到。
+
+### 命令 / 代码片段
+
+```vue
+<!-- 组件里：传 wrapClassName -->
+<a-modal wrapClassName="deploy-manage-modal-wrap" :footer="null">
+  <!-- 这里面是组件子树，scoped 生效 -->
+</a-modal>
+```
+
+```scss
+// global.scss（非 scoped）：靠 wrap 前缀提权，只影响这个弹窗
+.deploy-manage-modal-wrap {
+  .ant-modal-content { border-radius: 16px !important; overflow: hidden !important; }
+  .ant-modal-close   { display: none !important; }  // 隐藏默认无边框关闭 X
+}
+```
+
+### 术语
+
+- **Teleport**（Vue3 内置组件，对应 React 的 Portal）：把一段模板渲染到 DOM 树的另一个位置（通常是 body），常用于弹窗/浮层，避免被父容器的 `overflow:hidden`、`z-index`、`transform` 影响。
+- **scoped 的边界**：scoped 通过给组件内元素加唯一 `data-v-hash` 属性 + 选择器追加属性限定来隔离样式，作用域就是"带这个 hash 的 DOM 子树"。Teleport 出去的节点不带 hash，所以在作用域外。
+
+---
