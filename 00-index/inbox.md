@@ -500,3 +500,62 @@ response_data = json.loads(agent_result["response"])
 2. Puppeteer 为何无法访问 Vite 3 dev server（headless Chrome 被 Vite 的 base path 中间件拦截）—— 是否有 workaround？
 
 ---
+
+## [2026-06-24 14:30] 详情弹窗"部署"按钮按专家类型分流两套交互
+
+- 主题：同一个「部署到环境」按钮，精品专家走下拉即时部署、自建专家走二级弹窗，如何在 Vue3+Vuex 里优雅分流
+- 关联仓库/项目：ai-app-aiexpert-backend（Vue3+Vite+Vuex+AntDV）
+
+### 结论 / 认知
+
+1. **同名按钮不同交互，靠 getter 分流，别在模板里堆条件**：
+   - 在 store 里加语义化 getter `isCustomExpert = state.expert?.expert_type === 0`
+   - 模板用 `v-if="isCustomExpert"`（开二级弹窗）/ `v-else-if="canDeploy"`（开下拉）/ `v-else`（兜底关闭）
+   - 比在模板里直接写 `expert_type===0` 可读性强，也方便复用
+
+2. **二级弹窗（弹窗里再开弹窗）要独立挂载，不要嵌套在父 a-modal 内部**：
+   - 把 `<DeployManageModal />` 放在父 `</a-modal>` 之后、与父 modal 同级（Vue3 template 支持多根节点）
+   - 各自用 store 里独立的 visible 状态控制，避免 teleport 层级 / z-index / 关闭联动的坑
+
+3. **原型环境值大写、后端字段小写 —— 转换放在 store action 边界**：
+   - 原型 `_selectedDeployEnvs` 用 'WX'/'WA'/'none'；后端 `support_env` 存 'wx,wa'
+   - 进弹窗 `openDeployManage`：support_env.split(',').toUpperCase() 初始化选中
+   - 出弹窗 `confirmDeployManage`：选中 .toLowerCase().join(',') 写回
+   - 转换集中在 store，组件层只认一套（大写卡片 value），不散落
+
+4. **环境卡片"互斥但可多选"逻辑**（WX/WA 可同时选，但与 none 互斥）：
+   - 点 none → 直接 `['none']`
+   - 点 WX/WA → 先剔除 none，toggle 该项，若清空则回落 `['none']`
+
+5. **组织下拉**：原型手写了 dropdown，在 antdv 项目里直接用 `a-select mode="multiple"` 更省事可维护，视觉差异可接受
+
+6. **协作模式：数据源/接口未定时，写进 spec「待产品确认点」而非擅自决定**：
+   - 本次组织选项 + 确认提交接口都未定 → 与用户确认后本期硬编码 + mock，把 PM-1/PM-2 显式写进 tasks.md
+   - 既不阻塞前端样式对齐，又给产品/后端留下可追溯的决策项
+
+### 命令 / 代码片段
+
+```ts
+// store getter 分流
+export const isCustomExpert = (state: any) => state.expert?.expert_type === 0
+
+// 环境值大小写转换（store action 边界）
+const envs = (state.expert?.support_env || '')
+  .split(',').map((s: string) => s.trim().toUpperCase()).filter(Boolean)
+// 提交时：envs.map(e => e.toLowerCase()).join(',')
+```
+
+```vue
+<!-- 二级弹窗独立挂载，与父 modal 同级 -->
+  </a-modal>
+  <DeployManageModal />
+</template>
+```
+
+### 待验证问题
+
+1. 自建专家若同时也有 general/special 维度（待后端补字段），分流逻辑是否需要再细化
+2. 组织多选最终是否需要接真实组织列表接口（PM-1 待确认）
+3. 确认提交是否要扩展 deploy_expert 入参接收 accuracy/org（PM-2 待确认）
+
+---
