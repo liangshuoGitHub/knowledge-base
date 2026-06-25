@@ -601,3 +601,50 @@ const envs = (state.expert?.support_env || '')
 - **scoped 的边界**：scoped 通过给组件内元素加唯一 `data-v-hash` 属性 + 选择器追加属性限定来隔离样式，作用域就是"带这个 hash 的 DOM 子树"。Teleport 出去的节点不带 hash，所以在作用域外。
 
 ---
+
+### 2026-06-25 · Python 服务端跨服务 HTTP RPC 调用
+
+**场景**：zhinao-plan 需要获取 yy-auth 的组织列表数据。
+
+**分层架构约定**：
+- `core/` 目录放公共基础设施（封装外部服务调用），多个业务模块可复用
+- `core/yy_auth.py :: AuthService` 封装调 yy-auth 的 HTTP 请求，暴露语义化方法（`get_user_info()`、`get_org_list()` 等）
+- 业务模块（如 `apis/expert_backend/views.py`）通过 `AuthService(headers)` 调用，不直接写 `requests.get()`
+
+**Nacos 配置中心**：
+- 配置不在本地代码文件里，而是运行时从 Nacos 动态注入到 `settings` 对象
+- `settings.YY_AUTH.HOST` 等值在 Nacos 配置中心的 DATA_ID=`zn_plan` 里维护
+- 本地 `settings_dev.yml` 只存 Nacos 连接信息，启动时 `settings.update(app_config)` 合并远端配置
+- 好处：不同环境（dev/test/prod）的服务地址自动切换，不硬编码在代码里
+
+**跨服务调用踩坑**：
+1. **URL 前缀**：yy-auth 服务自身带 `/api/user` 前缀，网关转发不剥离。必须 curl 验证真实路径，不能凭路由定义猜。
+2. **Headers 透传**：要传完整的原始 headers（和已有的 `get_user_info()` 保持一致），不要只提取 Authorization，因为 yy-auth 的认证中间件可能依赖其他 headers。
+3. **权限校验**：yy-auth 的 `get_org_list` 需要超管/组织管理员权限，普通用户 token 会 401。
+
+**Dynaconf 动态配置**：
+```python
+from dynaconf import Dynaconf
+settings = Dynaconf(settings_files=[...])
+# 启动时从 Nacos 拉配置并合并
+nacos_config = NacosConfig()
+settings.update(nacos_config.get_config())
+# 之后可直接用 settings.YY_AUTH.HOST 访问
+```
+
+---
+
+### 2026-06-25 · expert_type 扩展设计思考
+
+**需求矛盾**：后管创建的专家需要同时满足两个条件
+- 后管里按 user_id 归入"我创建的"（类似 type=0 的行为）
+- 前台里归入"精品专项"（类似 type=2 的行为）
+
+**解决方案**：新增 `expert_type=3`，让不同端做不同路由：
+- 后管 `my_experts()`: 只查 `expert_type == 3`
+- 前台 `list_all_ai_expert()`: 把 `expert_type=3` 也归入 `builtin_special`
+- 前端 `getSceneType()`: `[2, 3].includes(expert_type)` → `'special'`
+
+**教训**：不要一开始就否定"加新枚举值"——当一个字段需要在不同上下文表现不同行为时，加新值是最清晰的方案，比用 flag 组合或条件判断更可维护。
+
+---
