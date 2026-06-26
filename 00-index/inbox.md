@@ -648,3 +648,46 @@ settings.update(nacos_config.get_config())
 **教训**：不要一开始就否定"加新枚举值"——当一个字段需要在不同上下文表现不同行为时，加新值是最清晰的方案，比用 flag 组合或条件判断更可维护。
 
 ---
+
+### 2026-06-26 · yy-auth 组织体系：树结构 + 按用户权限过滤
+
+**Organization 表关键字段（树结构）**：
+| 字段 | 作用 |
+|------|------|
+| `parent_org_id` | 直接父级（0=顶级） |
+| `top_org_id` | 所属的顶级组织（0=自己就是顶级） |
+| `org_level` | 层级深度（1=顶级, 2=二级...） |
+| `org_path` | 完整路径（如 `/1/3/5/`，冗余字段加速祖先/后代查询） |
+
+**`get_org_list` 按用户身份过滤**：
+- 超管（`is_superuser=True`）→ 看所有一级组织（`parent_org_id=0`）
+- 组织管理员 → 只看自己的 org + 直接下级
+- 普通用户 → 403 无权
+
+**返回的是扁平一层**，不递归展开子树。要看更深层级需再次调用传 `parent_org_id`。
+
+**核心认知**："不同环境展示不同组织"≠ 需要建环境-组织映射表。真正的原因是不同环境用了不同身份的管理员 token，yy-auth 按 token 对应的 org_id 天然过滤。
+
+---
+
+### 2026-06-26 · 三元关系表设计：专家 × 环境 × 组织
+
+**场景**：需要精确控制"哪个环境的哪个组织能看到某专家"。
+
+**表设计**：
+```sql
+CREATE TABLE ai_expert_deploy (
+  expert_id INT NOT NULL,
+  environment VARCHAR(20) NOT NULL,  -- wx/wa/test-wx
+  org_id INT NOT NULL,
+  org_name VARCHAR(100),  -- 冗余，避免每次查 yy-auth
+  accuracy VARCHAR(20),
+  UNIQUE KEY (expert_id, environment, org_id)
+);
+```
+
+**读写分离思维**：
+- **写入**（后管管理员）：多选环境 × 多选组织 = 多条记录
+- **读取**（前台用户）：用户身份天然单值（1 个 org_id + 1 个 environment），`WHERE env=? AND org_id=?` 查出可见专家
+
+---
