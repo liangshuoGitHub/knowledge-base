@@ -691,3 +691,47 @@ CREATE TABLE ai_expert_deploy (
 - **读取**（前台用户）：用户身份天然单值（1 个 org_id + 1 个 environment），`WHERE env=? AND org_id=?` 查出可见专家
 
 ---
+
+### 2026-06-26 · 无界（Wujie）微前端：宿主嵌入子应用的两种方式
+
+**方式 A：WujieApp 组件（宿主自有）**
+
+`ai-app-admin` 在 `components/wujie-app/index.vue` 里封装了一个通用组件：
+```vue
+<template>
+  <div ref="aiApp"></div>
+</template>
+<script setup>
+onMounted(() => {
+  window.__MicroAPP__.basic.startApp({
+    name: config.name,    // 子应用注册名
+    url: config.url,      // 子应用部署地址
+    alive: true,          // 保活模式
+    el: aiApp.value,      // 挂载 DOM
+    props: { ... }
+  })
+})
+</script>
+```
+使用方：直接 `import WujieApp from '@/components/wujie-app/index.vue'`，传 config 即可。
+
+**方式 B：layout-app 组件（基座共享组件库注入）**
+
+`ai-app-discovery-custom-event` 等应用用的是基座提供的 `<layout-app>`：
+```ts
+// main.ts
+window.__MicroAPP__.component.install([{ lib: 'layout', doc: document }], () => {
+  app.mount('#vite-xxx')
+})
+```
+调用 `component.install` 后，基座的共享组件库（`ai-app-component-basic` 的 layout 模块）被注入到当前沙箱，`<layout-app>` 就可以在模板中直接用了。
+
+**什么时候用哪个**：
+- 宿主本身是 Vue 应用且有自己的 WujieApp 封装 → 用方式 A
+- 子应用需要在无界沙箱内再嵌套另一个子应用 → 用方式 B（依赖基座 component.install）
+
+**子应用 URL 的拼接**：
+- 线上：`window.app_domain + '/ai-app-xxx/'`（app_domain 由基座注入，如 `https://wx.di.360.cn`）
+- 本地开发：fallback 到 `http://localhost:PORT/ai-app-xxx/`
+
+---
