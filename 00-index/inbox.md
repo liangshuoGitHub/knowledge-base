@@ -3,6 +3,45 @@
 > 所有会话沉淀的草稿先进这里，按写入时间从上到下排列。
 > 写入由全局 skill `knowledge-base-deposit` 自动完成，整理分发由仓库 skill `knowledge-base-inbox-triage` 完成。
 > 流程说明见 [`知识库使用方法`](./index.md)。
+
+---
+
+## 2026-07-03 · yy-auth 组织层级体系理解
+
+**分类建议**：`03-backend/yy-auth/组织层级.md`
+
+### Organization 表层级字段
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `top_org_id` | INT | 顶级组织ID，0=自己就是顶级 |
+| `parent_org_id` | INT | 父组织ID，0=顶级组织 |
+| `org_level` | TINYINT | 组织层级，1=顶级 |
+| `org_path` | VARCHAR(100) | 组织路径，格式 `/1/3/5/`（从根到自身） |
+
+### 一级组织（顶级）三条件同时成立
+
+- `top_org_id = 0`
+- `parent_org_id = 0`
+- `org_level = 1`
+
+### org_path 维护机制
+
+- 建表时全量初始化：`UPDATE SET org_path = CONCAT('/', id, '/')` (yy_auth_0006.sql)
+- 创建组织时自动写入：`_update_org_path(org, parent_org_id)` → 顶级: `/{id}/`，子级: `{parent.org_path}{id}/`
+- 已被 yy-auth 内部权限系统使用：`get_org_admin_accessible_org_ids` 用 `org_path.like()` 查所有下级
+
+### get_org_list 返回逻辑
+
+- **超管不传 parent_org_id**：返回所有 `parent_org_id=0` 的组织（即所有一级组织）
+- **组织管理员不传 parent_org_id**：返回 `parent_org_id=自身org_id` 的直接子组织 + 自身
+- **显式传 parent_org_id**：返回该 parent 的直接子组织
+
+### 向上穿透方案（用于专家可见性）
+
+子组织用户 → 调 `get_org_detail` 获取 `top_org_id` → 一级组织用户 `top_org_id=0` 时用自身 org_id → 匹配关系表中配置的一级组织 org_id
+
+---
 > 整理后已提炼进正文的条目，从本文件删除，只保留尚未消化的草稿。
 
 ## 这里装的是什么
