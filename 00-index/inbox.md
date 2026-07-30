@@ -961,3 +961,60 @@ sudo ls -ld \
 - 尚未做可控的自动回滚演练，可在无人联调的开发环境窗口故意触发新版本校验失败，确认旧版本能够自动恢复。
 
 ---
+
+## [2026-07-30 16:29] npm 私有仓库认证的配置分层
+
+- 主题：理解项目 `.npmrc`、个人 `~/.npmrc`、Nexus 认证和流水线私密变量如何协作
+- 关联仓库/项目：ai-app-keyword-monitor；fe-project-toolkit；公司 Nexus fontawesome 仓库
+
+### 结论 / 认知
+
+`.npmrc` 中“包从哪里下载”和“访问仓库时带什么凭证”是两类独立配置，所以同一个地址会出现两次。`@fortawesome:registry=...` 把 `@fortawesome/*` 包路由到内部 Nexus；`//仓库地址/:_auth=...` 则把认证限定在该地址，避免凭证发送给其他 registry，不能把 `:_auth` 拼进 registry URL。
+
+当前 `NEXUS_AUTH` 来源是 `Base64(用户名:密码)`，npm 在执行 `npm install` 时读取 `.npmrc` 并把它用于 Nexus Basic Auth。Base64 只是可逆编码，不是加密；它适合临时验证，但不应把个人账号密码硬编码进 Git。`_authToken` 需要 Nexus 实际签发并支持相应 Token，不能把用户名密码的 Base64 直接换个键名当 Token 使用。长期优先申请只读服务 Token，其次是只读公共账号，个人密码只应作为临时方案。
+
+npm 会合并多层配置：个人 `~/.npmrc` 和项目根目录 `.npmrc` 都会被读取，项目级同名配置优先。开发人员执行 `npm adduser --registry=...` 后，npm 会把该仓库的认证写入个人 `~/.npmrc`；项目只要保存 `@fortawesome` 的 registry 地址，本地 `npm install` 就能组合使用两层配置。但如果项目仍写着 `_auth=${NEXUS_AUTH}`，本机又没有该环境变量，项目级配置可能覆盖个人配置并导致认证失败。
+
+流水线没有开发人员的个人 `~/.npmrc`，因此若项目只提交仓库地址，CI 必须在 `npm install` 前从极库云私密变量把认证临时写入构建账号的用户级 npm 配置。由此形成清晰分工：代码仓库保存无敏感信息的地址；本地开发保存个人认证；流水线运行时注入机器认证。
+
+公司 Nexus 的 `repo.geelib.qihoo.net` 当前解析为私网地址 `10.16.24.91`，意味着本地使用一般需要公司内网或 VPN。公司页面给出的 `npm config set registry=fontawesome仓库` 是通用说明，但业务项目还要安装 Vue、Vite 等公共依赖，不应把全局 registry 都指向只存 Font Awesome 的 Hosted 仓库；更合适的是仅配置 `@fortawesome` scope。
+
+团队脚手架目前通过 157MB 的本地压缩包绕过 Font Awesome Pro 安装，模板依赖版本为 6.2.0，而本次 Nexus 已验证的是 7.x。要用 Nexus 替代压缩包，不能只修改 `.npmrc`：还需统一依赖版本、确认 Nexus 包覆盖、设计本地与 CI 认证方式，并在无缓存、无 `node_modules` 的干净项目中执行安装和构建验证。
+
+### 命令 / 代码片段
+
+项目中只保存公共源和 Font Awesome 的作用域路由：
+
+```ini
+registry=https://registry.npmmirror.com
+@fortawesome:registry=http://repo.geelib.qihoo.net:8360/nexus/repository/fontawesome/
+```
+
+开发人员在终端执行一次交互登录，认证写入个人 `~/.npmrc`：
+
+```bash
+npm adduser --registry=http://repo.geelib.qihoo.net:8360/nexus/repository/fontawesome/
+```
+
+临时生成 Basic Auth 值的原理如下，输出不可提交或公开：
+
+```bash
+printf '%s' '用户名:密码' | base64
+```
+
+### 术语
+
+- `scoped registry`：只让某个 npm 作用域（如 `@fortawesome`）使用指定仓库，不影响其他依赖。
+- `用户级 .npmrc`：位于个人主目录的 npm 配置，适合保存个人认证，不进入项目 Git。
+- `项目级 .npmrc`：随项目提交的配置，优先级高于用户级同名项，应避免包含真实凭证。
+- `_auth`：通常保存用户名和密码的 Base64，用于 Basic Auth；可逆，不等于加密。
+- `_authToken`：服务端签发的访问 Token；安全性优势来自可限权、可吊销和不等于个人密码。
+
+### 待验证问题
+
+- 公司 Nexus 是否支持为 npm 仓库签发只读 `_authToken`，或提供流水线专用只读服务账号。
+- `fontawesome` 仓库能否在公司内网开放匿名只读，从而省去本地和流水线认证。
+- 模板统一升级到 Font Awesome 7.x 后，所有图标 API、构建结果以及现有项目兼容性是否正常。
+- 极库云构建脚本运行时写入用户级 npm 认证，是否会受到 Jenkins Groovy 对 Shell 变量的提前解析影响。
+
+---
