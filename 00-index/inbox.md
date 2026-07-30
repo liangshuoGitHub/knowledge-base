@@ -774,3 +774,190 @@ window.__MicroAPP__.component.install([{ lib: 'layout', doc: document }], () => 
 - 本地开发：fallback 到 `http://localhost:PORT/ai-app-xxx/`
 
 ---
+
+## [2026-07-22 18:26] 通过云堡垒机和 FinalShell 自助查询 Docker 日志
+
+- 主题：理解云堡垒机、FinalShell、测试服务器和 Docker 容器之间的关系，并沉淀可复用的日志查询方法
+- 关联仓库/项目：hot-topic-analysis
+
+### 结论 / 认知
+
+排查测试环境日志时，实际链路是“本机客户端 → 云堡垒机 → 测试宿主机 → Docker 容器 → 应用日志”。堡垒机网页和 FinalShell 都只是连接入口，进入资产前看到的 `[Host]>` 是资产搜索器，不是 Linux Shell；只有提示符变为 `[用户@服务器 ~]$` 后，`hostname`、`docker` 等命令才会真正执行。
+
+FinalShell 下方文件区经过堡垒机映射后会出现虚拟路径，个人可读写目录最终对应测试服务器的 `/home/<用户>`；系统目录或其他用户目录变灰通常是权限限制。下方“命令”区适合保存只读快捷命令，勾选“末尾添加回车符 CR”后会立即执行；需要先修改参数的模板可以不勾选，使用 `read -p` 交互读取任务 ID 的模板则可以勾选。
+
+日志查询要先确认服务器和容器身份，再按时间和任务 ID 缩小范围。`docker logs -f` 是持续追踪，用 `Ctrl+C` 中断；`less` 是分页阅读器，底部出现 `(END)` 时用 `q` 退出。`less -S` 会禁止长行自动折行，适合查看包含长 JSON 的日志，左右方向键可横向移动。
+
+应用日志前出现两份时间时，前者是 `docker logs --timestamps` 添加的 UTC 时间，后者是应用输出的北京时间，两者相差 8 小时但代表同一时刻。人工阅读可看北京时间，精确比较事件顺序可看 Docker 的小数秒时间；不需要 Docker 时间时去掉 `--timestamps`。
+
+### 命令 / 代码片段
+
+确认当前服务器身份：
+
+```bash
+hostname && whoami && pwd
+```
+
+定位目标项目容器：
+
+```bash
+sudo docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}' | grep 'hot-topic-analysis'
+```
+
+实时查看最近 200 行日志：
+
+```bash
+sudo docker logs -f --tail 200 hot-topic-analysis-container
+```
+
+按任务 ID 分页查看完整上下文，不显示 Docker UTC 时间：
+
+```bash
+read -r -p '请输入任务ID: ' TASK_LOG_ID; sudo docker logs --since 24h hot-topic-analysis-container 2>&1 | grep -C 200 "$TASK_LOG_ID" | less -S
+```
+
+按任务 ID 导出日志并校验大小：
+
+```bash
+read -r -p '请输入任务ID: ' TASK_LOG_ID; sudo docker logs --since 24h hot-topic-analysis-container 2>&1 | grep -C 300 "$TASK_LOG_ID" > "/home/<用户>/${TASK_LOG_ID}.log"; ls -lh "/home/<用户>/${TASK_LOG_ID}.log"; wc -l "/home/<用户>/${TASK_LOG_ID}.log"
+```
+
+只查看任务相关的入口接口调用：
+
+```bash
+read -r -p '请输入任务ID: ' TASK_LOG_ID; sudo docker logs --since 24h hot-topic-analysis-container 2>&1 | grep -F "$TASK_LOG_ID" | grep -E 'views \| (GET|POST|PATCH|DELETE|run|resume|export)' | less -S
+```
+
+常见符号：`|` 把左侧输出交给右侧；`2>&1` 把错误输出并入正常输出；`>` 覆盖写文件；`>>` 追加写文件；`grep -C 200` 显示命中位置前后各 200 行。
+
+### 术语
+
+- `堡垒机`：公司统一的服务器访问入口，负责认证、授权和操作审计。
+- `SSH`：远程登录 Linux 服务器的协议；FinalShell 是 SSH 客户端。
+- `容器`：项目在服务器上的隔离运行单元，同一宿主机可以混部多个项目。
+- `主机密钥指纹`：SSH 服务器身份摘要，首次连接应核对后保存；后续若突然变化，应先找运维确认。
+- `CR`：回车符。快捷命令末尾添加 CR，相当于发送后自动按 Enter。
+- `SFTP`：基于 SSH 的文件传输能力；经过堡垒机时可能显示虚拟目录或受权限限制。
+
+### 待验证问题
+
+- 测试环境重新发布后是否保留旧容器日志，取决于部署脚本和 Docker 日志策略；查不到历史日志时需确认是否有集中式日志平台或宿主机归档。
+- FinalShell 文件面板能否稳定透传所有目标资产的 SFTP 权限，需要结合堡垒机策略继续观察。
+
+---
+
+## [2026-07-22 19:31] 从复制命令到理解 Docker 日志查询
+
+- 主题：理解 Linux/Docker 日志命令的组成方式，以及数据库有任务但当前容器查不到日志的原因
+- 关联仓库/项目：hot-topic-analysis
+
+### 结论 / 认知
+
+一条日志查询命令可以按管道符拆成多个独立程序：`docker logs` 只负责输出指定容器当前保留的日志，`grep` 只把这些日志当普通文本筛选。Docker 不知道搜索内容是任务 ID、错误关键词还是中文话题名；管道符左边属于 Docker，右边属于 `grep`。
+
+数据库记录与容器日志生命周期不同。数据库中的任务可以长期存在，而 `docker logs` 绑定具体容器实例。通过 `docker inspect` 看到当前容器的 `Created` 与 `StartedAt` 只相差不到 1 秒，说明发布系统删除旧容器后创建了新容器，而不是简单重启；旧任务早于新容器创建时间，因此当前 `docker logs` 无法命中，但之前导出到宿主机个人目录的日志快照仍可读取。时间末尾的 `Z` 表示 UTC，换算北京时间需加 8 小时。
+
+命令中的名称和字段需要区分：`docker ps --format` 中的 `.Names`、`.Image`、`.Status`、`.Ports` 是 Docker 固定模板字段；`\t` 是制表符，用于分列。`grep 'hot-topic-analysis'` 是对整行做包含匹配，不只检查容器名；`docker inspect hot-topic-analysis-container` 则把完整容器名当作精确查询对象，因此不需要再接管道和 `grep`。格式字符串中的中文只是自定义输出标签，双大括号中的字段才是固定语法。
+
+### 命令 / 代码片段
+
+```bash
+echo "主机名：$(hostname)"
+echo "用户：$(whoami)"
+echo "当前目录：$(pwd)"
+
+sudo docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}' | grep 'hot-topic-analysis'
+
+sudo docker inspect --format '容器ID={{.Id}} 创建={{.Created}} 启动={{.State.StartedAt}} 镜像={{.Config.Image}}' hot-topic-analysis-container
+
+sudo docker logs --timestamps --since 24h hot-topic-analysis-container 2>&1 \
+  | grep -F -C 200 '任务ID'
+
+sudo docker logs -f --tail 200 hot-topic-analysis-container 2>&1 \
+  | grep --line-buffered -Ei 'traceback|exception|error|timeout'
+
+echo $?
+```
+
+`grep` 返回 `0` 表示命中，`1` 表示命令正常但没有匹配，`2` 表示参数或表达式错误。
+
+### 术语
+
+- `ps`：`process status`，Linux 中查看进程状态；`docker ps` 借用这个名称查看容器状态。
+- `pwd`：`print working directory`，显示当前工作目录；`$PWD` 是 Shell 保存的当前目录变量。
+- `grep`：名称源自 `g/re/p`，即全局搜索正则表达式并打印匹配结果；`p` 是 `print`。
+- `ls -lh`：`list + long format + human-readable`，详细列出文件并使用 K/M/G 等易读单位显示大小。
+- `2>&1`：把标准错误合并到标准输出，使后续管道也能筛选异常内容。
+- `-F`：按普通字符串匹配，查任务 ID 时比正则表达式更直观。
+- `-C 200`：显示命中行前后各 200 行上下文。
+- 行尾 `\`：命令续行符，表示下一行仍属于同一条命令。
+
+### 待验证问题
+
+- 测试环境是否接入集中式日志平台；如果已接入，容器发布后可从平台查询旧实例日志，不必依赖人工导出的快照。
+- Docker 日志轮转的大小和保留份数配置，决定同一容器实例中历史日志能保留多久。
+
+---
+
+## [2026-07-30 15:33] 极库云前端流水线部署与排障
+
+- 主题：把前端项目从人工打包交付改造成极库云自动构建、上传、备份和发布的完整流水线
+- 关联仓库/项目：ai-app-keyword-monitor；极库云私有化流水线
+
+### 结论 / 认知
+
+传统服务器上的前端静态资源部署，最小闭环是：拉取代码 → 安装依赖并构建 → 压缩构建目录 → 上传到服务器临时目录 → 远程 Shell 校验、备份和替换。上传任务不应直接覆盖 Nginx 正在读取的目录，应先传到 `/tmp`，完整校验后再切换，避免用户读到只上传了一部分的版本。
+
+本次项目的 Vite 构建产物不是常见的 `dist/`，而是 `ai-app-keyword-monitor/`。服务器上的实际部署目录是 `/data/apps/ekm-front-install-v1.2.0-new/html/ai-app-keyword-monitor`，Nginx/OpenResty 内部根目录是 `/usr/share/nginx/html`，宿主机目录通过原有部署结构提供给 Nginx。
+
+流水线操作远程主机必须使用公共账号，不能使用个人账号或 root。公共账号本身不需要拥有部署目录，但流水线无法交互输入密码，所以必须验证 `sudo -n id` 能直接返回 root。正式目录、备份目录均为 `root:root`、权限 `755`，发布命令因此统一通过免密 sudo 执行。更安全的长期做法是让运维只授权一个由 root 管理的固定发布脚本，而不是给公共账号开放任意 sudo 命令。
+
+发布脚本先在固定临时目录解压并校验 `index.html`、`assets/`，再把当前目录移动为上一版本备份，最后把已完整解压的新目录移动到正式位置。新版本校验失败时恢复备份。当前方案固定保留一份 `ai-app-keyword-monitor-pipeline-previous`，连续执行两次流水线均成功，且第二次发布后正式目录时间晚于备份目录，证明重复发布和上一版本备份逻辑有效。
+
+极库云的“发送 Shell 指令”会先经过 Jenkins Groovy，再交给远程 Shell。脚本中的 `$APP_NAME` 被 Groovy 抢先解析，导致 `MissingPropertyException: No such property: APP_NAME for class: WorkflowScript`；即使加反斜杠，平台生成脚本时仍可能把转义处理掉。最终通过使用不含 Shell 变量和 `$` 的固定路径脚本绕开两层解析问题。遇到这类错误时要先看远程连接日志：如果尚未出现 `sshScript` 或远程命令输出，说明服务器文件根本没有被修改，不需要回滚。
+
+验证发布不能只看 `Finished: SUCCESS`。还要确认页面改动确实生效、核心功能正常、浏览器控制台无新增报错、静态资源请求没有 404，并在服务器确认正式目录和上一版本备份都存在、属主及权限正确。本次修改页面文案后已生效，并连续发布两次成功，开发环境流水线闭环已跑通。
+
+### 命令 / 代码片段
+
+构建并生成上传包：
+
+```bash
+npm install
+npm run build
+tar -czf ai-app-keyword-monitor.tar.gz ai-app-keyword-monitor
+```
+
+验证流水线公共账号的免密 sudo、上传包和内容结构：
+
+```bash
+whoami
+sudo -n id
+sudo -n ls -lh /tmp/ai-app-keyword-monitor.tar.gz
+sudo -n tar -tzf /tmp/ai-app-keyword-monitor.tar.gz | head -20
+```
+
+发布后通过堡垒机验证正式目录和上一版本备份：
+
+```bash
+sudo ls -ld \
+  /data/apps/ekm-front-install-v1.2.0-new/html/ai-app-keyword-monitor \
+  /data/apps/ekm-front-install-v1.2.0-new/html/bak/ai-app-keyword-monitor-pipeline-previous
+```
+
+### 术语
+
+- `构建产物`：执行前端构建后生成、可以直接交给 Web 服务器提供访问的静态文件。
+- `免密 sudo`：执行 sudo 命令时无需交互输入密码；流水线无人值守执行时需要这种能力，但应按最小权限授权。
+- `临时目录发布`：先把完整新版本放入独立目录并验证，再整体切换到正式目录，避免半成品暴露给访问者。
+- `Groovy 插值`：Jenkins 在远程 Shell 执行前先解析字符串中的变量表达式，可能与 Shell 自身的变量语法冲突。
+- `回滚`：新版本发布失败后恢复上一份可用文件，缩短故障时间。
+
+### 待验证问题
+
+- 当前构建环境 Node.js 为 `20.11.1`，但新安装的 Sass 等依赖要求至少 `20.19.0`；需升级 Node，并提交锁文件后改用 `npm ci`，避免依赖漂移造成未来构建突然失败。
+- 当前只保留一份上一版本备份；后续可评估按时间保留多份、设置清理策略，并增加部署后的 HTTP 健康检查。
+- 日志显示 SSH host key checking 被关闭，存在中间人攻击风险；应确认极库云是否支持维护可信 `known_hosts`。
+- 尚未做可控的自动回滚演练，可在无人联调的开发环境窗口故意触发新版本校验失败，确认旧版本能够自动恢复。
+
+---
